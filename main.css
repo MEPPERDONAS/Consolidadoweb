@@ -257,7 +257,7 @@ footer {
         flex-direction: column;
     }
     #graphContainer {
-        max-height: 520px;
+        max-height: 320px;
     }
     .panel {
         flex: 1 1 100%;

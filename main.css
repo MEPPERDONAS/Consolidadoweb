@@ -22,7 +22,7 @@ body {
     border-radius: 10px;
     box-shadow: 0 0 15px rgba(0,0,0,0.1);
     text-align: center;
-    border: #141212 solid 2px;
+    /*border: #141212 solid 2px;*/
 }
 
 h1 {

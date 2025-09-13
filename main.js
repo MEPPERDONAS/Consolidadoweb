@@ -1,7 +1,6 @@
 // main.js
 
 // Función para cargar contenido de un archivo HTML en un elemento
-// Utiliza una promesa para asegurar que la carga se complete
 function loadHTML(elementId, filePath) {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
@@ -14,11 +13,11 @@ function loadHTML(elementId, filePath) {
                         resolve();
                     } else {
                         console.error(`Error: No se encontró el elemento con ID '${elementId}'.`);
-                        reject();
+                        reject(new Error(`Element with ID '${elementId}' not found.`));
                     }
                 } else {
                     console.error(`Error al cargar el archivo en la ruta: ${filePath}. Estado HTTP: ${this.status}`);
-                    reject();
+                    reject(new Error(`Failed to load file at path: ${filePath}`));
                 }
             }
         };
@@ -29,19 +28,37 @@ function loadHTML(elementId, filePath) {
 
 // -----------------------------------------------------------
 // Lógica principal de la aplicación
-// Espera a que el DOM esté completamente cargado para iniciar todo
 // -----------------------------------------------------------
 document.addEventListener('DOMContentLoaded', function() {
-    // Cargar Header y Footer primero de forma asíncrona
+    let yearTexts = {}; // Declaramos la variable para los textos de los años
+
+    // Promesa para cargar los textos de los años desde el JSON
+    const fetchTextsPromise = fetch('texts.json')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('No se pudo cargar texts.json');
+            }
+            return response.json();
+        })
+        .then(data => {
+            yearTexts = data;
+        })
+        .catch(error => {
+            console.error('Error al cargar los textos del JSON:', error);
+        });
+
+    // Cargar todos los elementos de la página de forma asíncrona y simultánea
     Promise.all([
         loadHTML('header-placeholder', '../header.html'),
-        loadHTML('footer-placeholder', '../footer.html')
+        loadHTML('footer-placeholder', '../footer.html'),
+        loadHTML('acacontent', '../INT/INT-ACA.html'),
+        fetchTextsPromise
     ]).then(() => {
-        // La lógica para el selector de años y gráficos va aquí dentro
-        // para garantizar que los elementos existan.
         const yearSelector = document.getElementById('yearSelector');
         const graphContainer = document.getElementById('graphContainer');
+        const acacontent = document.getElementById('acacontent');
         const associatedWordsDisplay = document.getElementById('associatedWordsDisplay');
+        const textContainer = document.getElementById('text-container');
         const loadedIframes = {};
 
         // Función para cargar el grafo de un año
@@ -49,13 +66,23 @@ document.addEventListener('DOMContentLoaded', function() {
             const selectedYear = yearSelector.value;
             const selectedOption = yearSelector.options[yearSelector.selectedIndex];
             const graphUrl = selectedOption ? selectedOption.dataset.graph : null;
+
+            // Actualiza el contenido del contenedor de texto
+            if (selectedYear && yearTexts[selectedYear]) {
+                textContainer.innerHTML = `<p>${yearTexts[selectedYear]}</p>`;
+            } else {
+                textContainer.innerHTML = `<p>Selecciona un año para ver los detalles.</p>`;
+            }
+
+            // Limpia el panel de palabras asociadas
             associatedWordsDisplay.innerHTML = '<p>Haz clic en un nodo para ver sus palabras vecinas.</p>';
+
             if (graphUrl) {
                 if (loadedIframes[selectedYear]) {
                     graphContainer.innerHTML = '';
                     graphContainer.appendChild(loadedIframes[selectedYear]);
                     console.log(`Mostrando grafo cacheado para el año: ${selectedYear}`);
-                    setTimeout(() => { 
+                    setTimeout(() => {
                         const network = loadedIframes[selectedYear].contentWindow.network;
                         if (network) {
                             attachNodeClickListener(network);
@@ -86,34 +113,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             } else {
                 graphContainer.innerHTML = '<p>Selecciona un año para ver el grafo.</p>';
-                associatedWordsDisplay.innerHTML = '';
             }
         }
 
         // Función para adjuntar el "listener" de clic en los nodos
-        function attachNodeClickListener(networkInstance) { 
-            if (!networkInstance || typeof networkInstance.on !== 'function') { 
+        function attachNodeClickListener(networkInstance) {
+            if (!networkInstance || typeof networkInstance.on !== 'function') {
                 console.error("DEBUG: La instancia de la red no es válida.");
                 return;
             }
-            
-            networkInstance.on("selectNode", function (params) { 
+            networkInstance.on("selectNode", function (params) {
                 if (params.nodes.length > 0) {
                     const nodeId = params.nodes[0];
-                    const nodeData = networkInstance.body.data.nodes.get(nodeId); 
-                    const words = nodeData.associated_words; 
-                    
+                    const nodeData = networkInstance.body.data.nodes.get(nodeId);
+                    const words = nodeData.associated_words;
                     if (words) {
                         const wordsArray = words.split(', ').filter(word => word.trim() !== '');
                         if (wordsArray.length > 0) {
-                            // --- MODIFICACIÓN CLAVE AQUÍ ---
-                            // En lugar de una lista, unimos el array con ", "
                             const formattedString = wordsArray.join(', ');
-
-                            associatedWordsDisplay.innerHTML = `
-                                <h3>Palabras vecinas de "${nodeId}":</h3>
-                                <p>${formattedString}</p>
-                            `;
+                            associatedWordsDisplay.innerHTML = `<h3>Palabras vecinas de "${nodeId}":</h3><p>${formattedString}</p>`;
                         } else {
                             associatedWordsDisplay.innerHTML = `<p>No hay palabras vecinas para "${nodeId}".</p>`;
                         }
@@ -124,18 +142,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     associatedWordsDisplay.innerHTML = '<p>Haz clic en un nodo para ver sus palabras vecinas.</p>';
                 }
             });
-
-    networkInstance.on("click", function(params) {
-        if (params.nodes.length === 0 && params.edges.length === 0) {
-            associatedWordsDisplay.innerHTML = '<p>Haz clic en un nodo para ver sus palabras vecinas.</p>';
+            networkInstance.on("click", function(params) {
+                if (params.nodes.length === 0 && params.edges.length === 0) {
+                    associatedWordsDisplay.innerHTML = '<p>Haz clic en un nodo para ver sus palabras vecinas.</p>';
+                }
+            });
         }
-    });
-}
 
-        // Añade el listener para el cambio en el selector de año
         if (yearSelector) {
             yearSelector.addEventListener('change', loadGraph);
-            // Carga el grafo inicial si hay un año seleccionado
             if (yearSelector.value) {
                 loadGraph();
             } else if (yearSelector.options.length > 1) {
@@ -143,5 +158,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 loadGraph();
             }
         }
+        
     });
 });

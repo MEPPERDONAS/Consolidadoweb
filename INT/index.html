@@ -10,7 +10,7 @@
     <div id="header-placeholder"></div>
     
     <div class="container">
-        <h1>🔍 Hallazgos Internacionales</h1>
+        <h1>Hallazgos Internacionales</h1>
         <p>Selecciona un año para ver el grafo:</p>
         <select id="yearSelector">
             <option value="">Selecciona un año...</option>
@@ -22,15 +22,21 @@
             <option value="2025" data-graph="INT-2025.html">2025</option>
             </select>
         
-        <div id="graphContainer">
-            <p>Selecciona un año para ver el grafo.</p>
-        </div>
-        <div id="associatedWordsDisplay">
+        <div class="panels-wrapper">
+            <div id="text-container" class="panel">
+                <p>El texto específico del año seleccionado aparecerá aquí.</p>
+            </div>
+            <div id="graphContainer" class="panel">
+                <p>Selecciona un año para ver el grafo.</p>
+            </div>
+    </div>        
+        <div id="associatedWordsDisplay" class="panel">
             <p>Haz clic en un nodo para ver sus palabras vecinas.</p>
         </div>
+        
+    
         <p><a href="../index.html">← Volver al menú principal</a></p>
     </div>
-
     <div id="footer-placeholder"></div>
     <script src="../main.js"></script>
 </body>

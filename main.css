@@ -229,7 +229,9 @@ footer {
 }
 
 @media (max-width: 768px) {
-
+    .abstract-container h1 {
+       font-size: 1.5em;
+    }
     .panels-wrapper {
         flex-direction: column;
     }

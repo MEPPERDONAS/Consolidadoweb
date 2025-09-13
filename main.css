@@ -1,3 +1,20 @@
+:root {
+    --color-primario: #0b1691;  /* Un azul corporativo/académico */
+    --color-secundario: #4A90E2; /* Un azul más claro para enlaces o botones */
+    --color-fondo: #F4F6F8;     /* Un gris muy claro para el fondo de la página */
+    --color-contenedor: #FFFFFF; /* Blanco para los contenedores */
+    --color-texto-principal: #333333;  /* Negro suave para la mayoría del texto */
+    --color-texto-secundario: #555555; /* Gris para párrafos o subtítulos */
+}
+
+.abstract-container,
+.container,
+.factor-container {
+    animation-name: fade-in-up;
+    animation-fill-mode: forwards;
+    animation-range: entry 10% cover 40%;
+    animation-timeline: view();
+}
 
 *,
 *::before,
@@ -10,29 +27,29 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     line-height: 1.6;
-    background-color: #f4f4f4;
-    color: #333;
+    background-color: var(--color-fondo);
+    color: var(--color-texto-principal);
 }
 
 .container {
     max-width: 95%;
-    margin: 0 auto;
-    padding: 20px;
+    margin: 20px auto;
+    padding: 25px;
     background: #fff;
     border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    text-align: center;
+    /*box-shadow: 0 2px 10px rgba(0,0,0,0.1);*/
+    text-align: left;
     /*border: #141212 solid 2px;*/
 }
 
 h1 {
     padding-top: 15px;
-    color: #2c3e50;
+    color: var(--color-primario);
     margin-bottom: 20px;
     text-align: center;
 }
 h2 {
-    color: #34495e;
+    color: var(--color-primario);
     margin-bottom: 15px;
     text-align: left;
 }
@@ -51,10 +68,11 @@ p {
 }
 
 header {
-    background-color: #2c3e50;
+    background-color:var(--color-primario);
     padding: 15px 0;
     text-align: center;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    position: sticky;
 }
 
 header nav {
@@ -63,7 +81,22 @@ header nav {
     gap: 20px;
     flex-wrap: wrap;
 }
+#header-placeholder {
+    /* La magia de "sticky": se comporta normal hasta que llega arriba, 
+       luego se pega. */
+    position: sticky;       
+    position: -webkit-sticky; /* Para compatibilidad con Safari */
+    
+    /* Le dice dónde pegarse: a 0px del borde superior */
+    top: 0;                  
 
+    /* Importante: Asegúrate de que tenga un color de fondo, 
+       de lo contrario, el texto de abajo se verá a través de él. */
+    background-color: white; 
+
+    /* Asegura que el header esté por encima de todo lo demás (los grafos, el texto). */
+    z-index: 1000;         
+}
 .nav-button {
     color: #fff;
     text-decoration: none;
@@ -167,29 +200,42 @@ footer {
 
 .abstract-container h1 {
     text-align: center;
-    color: #2c3e50;
+    color: var(--color-primario);
     margin-top: 0;
+    font-size: 3em;
+    padding-bottom: 60px;
 }
 .abstract-container h3 {
-    color: #34495e;
+    color: var(--color-secundario);
     margin-bottom: 15px;
 }
 .abstract-container p {
     font-size: 1em;
-    line-height: 1.8;
+    line-height: 1,15;
 }
 
+/* Animación para que los paneles aparezcan con un efecto de desvanecimiento y desplazamiento */
+@keyframes fade-in-up {
+    from {
+        opacity: 0,5;                     /* Empieza invisible */
+        transform: translateY(20px);    /* Y 30px más abajo */
+        scale: 0.95;                   /* Y un poco más pequeño */
+    }
+    to {
+        opacity: 1;                     /* Termina visible */
+        transform: translateY(0);       /* Y en su posición original */
+        scale: 1;                       /* Y a su tamaño original */
+    }
+}
 
 @media (max-width: 768px) {
-    .container {
-        padding: 0px;
-        min-width: 50%;
-    }
+
     .panels-wrapper {
         flex-direction: column;
     }
     .panel {
         flex: 1 1 100%;
+        padding: 0px;
     }
     header nav {
         display: flex;

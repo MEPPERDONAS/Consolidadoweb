@@ -51,7 +51,9 @@ body {
     text-align: left;
     /*border: #141212 solid 2px;*/
 }
-
+.containerci p{
+    max-width: 95%;
+}
 h1 {
     padding-top: 15px;
     color: var(--color-primario);
@@ -244,9 +246,18 @@ footer {
     }
     .containerci {
         padding: 1px;
+        align-items: center;
+        justify-content: center;
+        
+    }
+    .containerci p{
+        padding-left: 3%;
     }
     .panels-wrapper {
         flex-direction: column;
+    }
+    #graphContainer {
+        max-height: 520px;
     }
     .panel {
         flex: 1 1 100%;

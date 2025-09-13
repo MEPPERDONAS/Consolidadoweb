@@ -51,12 +51,11 @@ document.addEventListener('DOMContentLoaded', function() {
     Promise.all([
         loadHTML('header-placeholder', '../header.html'),
         loadHTML('footer-placeholder', '../footer.html'),
-        loadHTML('acacontent', '../INT/INT-ACA.html'),
+        //loadHTML('acacontent', '../INT/INT-ACA.html'),
         fetchTextsPromise
     ]).then(() => {
         const yearSelector = document.getElementById('yearSelector');
         const graphContainer = document.getElementById('graphContainer');
-        const acacontent = document.getElementById('acacontent');
         const associatedWordsDisplay = document.getElementById('associatedWordsDisplay');
         const textContainer = document.getElementById('text-container');
         const loadedIframes = {};

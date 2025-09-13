@@ -1,0 +1,720 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script>function neighbourhoodHighlight(params) {
+  // console.log("in nieghbourhoodhighlight");
+  allNodes = nodes.get({ returnType: "Object" });
+  // originalNodes = JSON.parse(JSON.stringify(allNodes));
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    highlightActive = true;
+    var i, j;
+    var selectedNode = params.nodes[0];
+    var degrees = 2;
+
+    // mark all nodes as hard to read.
+    for (let nodeId in allNodes) {
+      // nodeColors[nodeId] = allNodes[nodeId].color;
+      allNodes[nodeId].color = "rgba(200,200,200,0.5)";
+      if (allNodes[nodeId].hiddenLabel === undefined) {
+        allNodes[nodeId].hiddenLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+    var connectedNodes = network.getConnectedNodes(selectedNode);
+    var allConnectedNodes = [];
+
+    // get the second degree nodes
+    for (i = 1; i < degrees; i++) {
+      for (j = 0; j < connectedNodes.length; j++) {
+        allConnectedNodes = allConnectedNodes.concat(
+          network.getConnectedNodes(connectedNodes[j])
+        );
+      }
+    }
+
+    // all second degree nodes get a different color and their label back
+    for (i = 0; i < allConnectedNodes.length; i++) {
+      // allNodes[allConnectedNodes[i]].color = "pink";
+      allNodes[allConnectedNodes[i]].color = "rgba(150,150,150,0.75)";
+      if (allNodes[allConnectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[allConnectedNodes[i]].label =
+          allNodes[allConnectedNodes[i]].hiddenLabel;
+        allNodes[allConnectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // all first degree nodes get their own color and their label back
+    for (i = 0; i < connectedNodes.length; i++) {
+      // allNodes[connectedNodes[i]].color = undefined;
+      allNodes[connectedNodes[i]].color = nodeColors[connectedNodes[i]];
+      if (allNodes[connectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[connectedNodes[i]].label =
+          allNodes[connectedNodes[i]].hiddenLabel;
+        allNodes[connectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // the main node gets its own color and its label back.
+    // allNodes[selectedNode].color = undefined;
+    allNodes[selectedNode].color = nodeColors[selectedNode];
+    if (allNodes[selectedNode].hiddenLabel !== undefined) {
+      allNodes[selectedNode].label = allNodes[selectedNode].hiddenLabel;
+      allNodes[selectedNode].hiddenLabel = undefined;
+    }
+  } else if (highlightActive === true) {
+    // console.log("highlightActive was true");
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      // allNodes[nodeId].color = "purple";
+      allNodes[nodeId].color = nodeColors[nodeId];
+      // delete allNodes[nodeId].color;
+      if (allNodes[nodeId].hiddenLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].hiddenLabel;
+        allNodes[nodeId].hiddenLabel = undefined;
+      }
+    }
+    highlightActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    // console.log("Nothing was selected");
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        // allNodes[nodeId].color = {};
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function filterHighlight(params) {
+  allNodes = nodes.get({ returnType: "Object" });
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    filterActive = true;
+    let selectedNodes = params.nodes;
+
+    // hiding all nodes and saving the label
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = true;
+      if (allNodes[nodeId].savedLabel === undefined) {
+        allNodes[nodeId].savedLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+
+    for (let i=0; i < selectedNodes.length; i++) {
+      allNodes[selectedNodes[i]].hidden = false;
+      if (allNodes[selectedNodes[i]].savedLabel !== undefined) {
+        allNodes[selectedNodes[i]].label = allNodes[selectedNodes[i]].savedLabel;
+        allNodes[selectedNodes[i]].savedLabel = undefined;
+      }
+    }
+
+  } else if (filterActive === true) {
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = false;
+      if (allNodes[nodeId].savedLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].savedLabel;
+        allNodes[nodeId].savedLabel = undefined;
+      }
+    }
+    filterActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function selectNode(nodes) {
+  network.selectNodes(nodes);
+  neighbourhoodHighlight({ nodes: nodes });
+  return nodes;
+}
+
+function selectNodes(nodes) {
+  network.selectNodes(nodes);
+  filterHighlight({nodes: nodes});
+  return nodes;
+}
+
+function highlightFilter(filter) {
+  let selectedNodes = []
+  let selectedProp = filter['property']
+  if (filter['item'] === 'node') {
+    let allNodes = nodes.get({ returnType: "Object" });
+    for (let nodeId in allNodes) {
+      if (allNodes[nodeId][selectedProp] && filter['value'].includes((allNodes[nodeId][selectedProp]).toString())) {
+        selectedNodes.push(nodeId)
+      }
+    }
+  }
+  else if (filter['item'] === 'edge'){
+    let allEdges = edges.get({returnType: 'object'});
+    // check if the selected property exists for selected edge and select the nodes connected to the edge
+    for (let edge in allEdges) {
+      if (allEdges[edge][selectedProp] && filter['value'].includes((allEdges[edge][selectedProp]).toString())) {
+        selectedNodes.push(allEdges[edge]['from'])
+        selectedNodes.push(allEdges[edge]['to'])
+      }
+    }
+  }
+  selectNodes(selectedNodes)
+}</script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+            
+            
+            
+            
+            
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.0.0-rc.4/css/tom-select.min.css" integrity="sha512-43fHB3GLgZfz8QXl1RPQ8O66oIgv3po9cJ5erMt1c4QISq9dYb195T3vr5ImnJPXuVroKcGBPXBFKETW8jrPNQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.0.0-rc.4/js/tom-select.complete.js" integrity="sha512-jeF9CfnvzDiw9G9xiksVjxR2lib44Gnovvkv+3CgCG6NXCD4gqlA5nDAVW5WjpA+i+/zKsUWV5xNEbW1X/HH0Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 750px;
+                 background-color: #222222;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+                <div id="select-menu" class="card-header">
+                    <div class="row no-gutters">
+                        <div class="col-10 pb-2">
+                            <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="selectNode([value]);"
+                            id="select-node"
+                            placeholder="Select node..."
+                            >
+                                <option selected>Select a Node by ID</option>
+                                
+                                    <option value="director">director</option>
+                                
+                                    <option value="ejecutivo">ejecutivo</option>
+                                
+                                    <option value="empresa">empresa</option>
+                                
+                                    <option value="financiero">financiero</option>
+                                
+                                    <option value="estratégico">estratégico</option>
+                                
+                                    <option value="desempeño">desempeño</option>
+                                
+                                    <option value="innovación">innovación</option>
+                                
+                                    <option value="corporativo">corporativo</option>
+                                
+                                    <option value="internacionalización">internacionalización</option>
+                                
+                                    <option value="evidenciar">evidenciar</option>
+                                
+                                    <option value="social">social</option>
+                                
+                                    <option value="responsabilidad">responsabilidad</option>
+                                
+                                    <option value="político">político</option>
+                                
+                                    <option value="emergente">emergente</option>
+                                
+                                    <option value="mercado">mercado</option>
+                                
+                                    <option value="economía">economía</option>
+                                
+                                    <option value="extranjero">extranjero</option>
+                                
+                                    <option value="cadena">cadena</option>
+                                
+                                    <option value="suministro">suministro</option>
+                                
+                                    <option value="gestión">gestión</option>
+                                
+                                    <option value="efecto">efecto</option>
+                                
+                                    <option value="estrategia">estrategia</option>
+                                
+                                    <option value="internacional">internacional</option>
+                                
+                                    <option value="experimento">experimento</option>
+                                
+                                    <option value="rendimiento">rendimiento</option>
+                                
+                                    <option value="perspectiva">perspectiva</option>
+                                
+                                    <option value="humano">humano</option>
+                                
+                                    <option value="recurso">recurso</option>
+                                
+                                    <option value="capital">capital</option>
+                                
+                                    <option value="negocio">negocio</option>
+                                
+                                    <option value="inversión">inversión</option>
+                                
+                                    <option value="inversor">inversor</option>
+                                
+                                    <option value="tecnología">tecnología</option>
+                                
+                                    <option value="trabajo">trabajo</option>
+                                
+                                    <option value="búsqueda">búsqueda</option>
+                                
+                                    <option value="institucional">institucional</option>
+                                
+                                    <option value="decisión">decisión</option>
+                                
+                                    <option value="comportamiento">comportamiento</option>
+                                
+                                    <option value="cultural">cultural</option>
+                                
+                                    <option value="elección">elección</option>
+                                
+                                    <option value="experiencia">experiencia</option>
+                                
+                                    <option value="organización">organización</option>
+                                
+                                    <option value="capacidad">capacidad</option>
+                                
+                                    <option value="psicológico">psicológico</option>
+                                
+                                    <option value="acción">acción</option>
+                                
+                                    <option value="contexto">contexto</option>
+                                
+                                    <option value="empleado">empleado</option>
+                                
+                                    <option value="práctica">práctica</option>
+                                
+                                    <option value="cambio">cambio</option>
+                                
+                                    <option value="desarrollo">desarrollo</option>
+                                
+                                    <option value="emprendimiento">emprendimiento</option>
+                                
+                                    <option value="equipo">equipo</option>
+                                
+                                    <option value="digital">digital</option>
+                                
+                                    <option value="plataforma">plataforma</option>
+                                
+                                    <option value="producto">producto</option>
+                                
+                                    <option value="directivo">directivo</option>
+                                
+                                    <option value="teoría">teoría</option>
+                                
+                                    <option value="laboral">laboral</option>
+                                
+                                    <option value="estructura">estructura</option>
+                                
+                                    <option value="temporal">temporal</option>
+                                
+                                    <option value="crisis">crisis</option>
+                                
+                                    <option value="respuesta">respuesta</option>
+                                
+                                    <option value="tiempo">tiempo</option>
+                                
+                                    <option value="control">control</option>
+                                
+                                    <option value="liderazgo">liderazgo</option>
+                                
+                                    <option value="impacto">impacto</option>
+                                
+                                    <option value="propiedad">propiedad</option>
+                                
+                                    <option value="cliente">cliente</option>
+                                
+                                    <option value="servicio">servicio</option>
+                                
+                                    <option value="competencia">competencia</option>
+                                
+                                    <option value="industria">industria</option>
+                                
+                                    <option value="aprendizaje">aprendizaje</option>
+                                
+                                    <option value="dinámico">dinámico</option>
+                                
+                                    <option value="influencia">influencia</option>
+                                
+                                    <option value="enfoque">enfoque</option>
+                                
+                                    <option value="conocimiento">conocimiento</option>
+                                
+                                    <option value="basado">basado</option>
+                                
+                                    <option value="público">público</option>
+                                
+                                    <option value="adquisición">adquisición</option>
+                                
+                                    <option value="sistema">sistema</option>
+                                
+                                    <option value="consumidor">consumidor</option>
+                                
+                                    <option value="marca">marca</option>
+                                
+                                    <option value="comentario">comentario</option>
+                                
+                                    <option value="crecimiento">crecimiento</option>
+                                
+                                    <option value="marketing">marketing</option>
+                                
+                                    <option value="evaluación">evaluación</option>
+                                
+                                    <option value="atención">atención</option>
+                                
+                                    <option value="línea">línea</option>
+                                
+                                    <option value="implicación">implicación</option>
+                                
+                                    <option value="global">global</option>
+                                
+                                    <option value="diseño">diseño</option>
+                                
+                                    <option value="pandemia">pandemia</option>
+                                
+                                    <option value="mejorar">mejorar</option>
+                                
+                                    <option value="emprendedor">emprendedor</option>
+                                
+                                    <option value="oportunidad">oportunidad</option>
+                                
+                                    <option value="empírico">empírico</option>
+                                
+                                    <option value="género">género</option>
+                                
+                                    <option value="futuro">futuro</option>
+                                
+                                    <option value="profesional">profesional</option>
+                                
+                            </select>
+                        </div>
+                        <div class="col-2 pb-2">
+                            <button type="button" class="btn btn-primary btn-block" onclick="neighbourhoodHighlight({nodes: []});">Reset Selection</button>
+                        </div>
+                    </div>
+                </div>
+            
+            
+              <div id="filter-menu" class="card-header">
+                <div class="row no-gutters">
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="updateFilter(value, 'item')"
+                            id="select-item"
+                        >
+                        <option value="">Select a network item</option>
+                        <option value="edge">edge</option>
+                        <option value="node">node</option>
+                    </select>
+                  </div>
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="updateFilter(value, 'property')"
+                            id="select-property"
+                        >
+                        <option value="">Select a property...</option>
+                    </select>
+                  </div>
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            id="select-value"
+                        >
+                        <option value="">Select value(s)...</option>
+                    </select>
+                  </div>
+                  <div class="col-1 pb-2">
+                    <button type="button" class="btn btn-primary btn-block" onclick="highlightFilter(filter);">Filter</button>
+                  </div>
+                  <div class="col-2 pb-2">
+                    <button type="button" class="btn btn-primary btn-block" onclick="clearFilter(true)">Reset Selection</button>
+                  </div>
+                </div>
+              </div>
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+                  new TomSelect("#select-node",{
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      }
+                  });
+              
+
+              
+                  // explicitly using onItemAdd and this function as we need to save multiple values
+                  let updateValueFilter = function() {
+                      return function () {
+                      filter['value'].push(arguments[0])
+                      }
+                  }
+
+                  let valueControl = new TomSelect("#select-value",{
+                      maxItems: null,
+                      valueField: 'id',
+                      labelField: 'title',
+                      searchField: 'title',
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: updateValueFilter()
+                  });
+
+                  let addValues = function() {
+                      return function () {
+                          // clear the current value options and add the selected attribute values
+                          // tom-select handles duplicates
+                          let selectedProperty = arguments[0];
+                          valueControl.clear();
+                          valueControl.clearOptions();
+                          filter['value'] = []
+                          if (filter['item'] === 'node') {
+                              for (let each in allNodes) {
+                                  valueControl.addOption({
+                                      id:allNodes[each][selectedProperty],
+                                      title:allNodes[each][selectedProperty]
+                                  })
+                              }
+                          }
+                          else if (filter['item'] === 'edge') {
+                              for (let each in allEdges) {
+                                  valueControl.addOption({
+                                      id:allEdges[each][selectedProperty],
+                                      title:allEdges[each][selectedProperty]
+                                  })
+                              }
+                          }
+                      }
+                  };
+
+                  let propControl = new TomSelect("#select-property",{
+                      valueField: 'id',
+                      labelField: 'title',
+                      searchField: 'title',
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: addValues()
+                  });
+
+                  let addProperties = function() {
+                      return function () {
+                          // loops through the selected network item and adds the attributes to dropdown
+                          // tom-select handles duplicates
+                          clearFilter(false)
+                          if (arguments[0] === 'edge') {
+                              for (let each in allEdges) {
+                                  if (allEdges.hasOwnProperty(each)) {
+                                      for (let eachProp in allEdges[each]) {
+                                          if (allEdges[each].hasOwnProperty(eachProp)) {
+                                              propControl.addOption({id: eachProp, title: eachProp})
+                                          }
+                                      }
+                                  }
+                              }
+                          }
+                          else if (arguments[0] === 'node') {
+                              for (let each in allNodes) {
+                                  if (allNodes.hasOwnProperty(each)) {
+                                      for (let eachProp in allNodes[each]) {
+                                          if (allNodes[each].hasOwnProperty(eachProp)
+                                              && (eachProp !== 'hidden' && eachProp !== 'savedLabel'
+                                                  && eachProp !== 'hiddenLabel')) {
+                                              propControl.addOption({id: eachProp, title: eachProp})
+
+                                          }
+                                      }
+                                  }
+                              }
+                          }
+                      }
+                  };
+
+                  let itemControl = new TomSelect("#select-item",{
+                      create: false,
+                      sortField:{
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: addProperties()
+                  });
+
+                  function clearFilter(reset) {
+                      // utility function to clear all the selected filter options
+                      // if reset is set to true, the existing filter will be removed
+                      // else, only the dropdown options are cleared
+                      propControl.clear();
+                      propControl.clearOptions();
+                      valueControl.clear();
+                      valueControl.clearOptions();
+                      filter = {
+                          item : '',
+                          property : '',
+                          value : []
+                      }
+                      if (reset) {
+                          itemControl.clear();
+                          filterHighlight({nodes: []})
+                      }
+                  }
+
+                  function updateFilter(value, key) {
+                      // key could be 'item' or 'property' and value is as selected in dropdown
+                      filter[key] = value
+                  }
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"associated_words": "decisi\u00f3n, directivo, ejecutivo, empresa, financiero", "color": "#bebada", "font": {"color": "white"}, "id": "director", "label": "director", "shape": "dot", "size": 13.10880829015544, "title": "Frecuencia: 30\u003cbr\u003eCluster: 4\u003cbr\u003eTema: mercado"}, {"associated_words": "atenci\u00f3n, director, empresa, estrat\u00e9gico", "color": "#bebada", "font": {"color": "white"}, "id": "ejecutivo", "label": "ejecutivo", "shape": "dot", "size": 12.901554404145077, "title": "Frecuencia: 29\u003cbr\u003eCluster: 4\u003cbr\u003eTema: mercado"}, {"associated_words": "acci\u00f3n, adquisici\u00f3n, aprendizaje, basado, b\u00fasqueda, cambio, capital, comportamiento, contexto, crecimiento, decisi\u00f3n, desempe\u00f1o, digital, directivo, director, econom\u00eda, efecto, ejecutivo, emergente, empleado, equipo, estrategia, evidenciar, financiero, gesti\u00f3n, industria, innovaci\u00f3n, institucional, internacional, internacionalizaci\u00f3n, inversi\u00f3n, laboral, liderazgo, mercado, perspectiva, producto, profesional, propiedad, p\u00fablico, rendimiento, responsabilidad, respuesta, servicio, social, tecnolog\u00eda, trabajo", "color": "#8dd3c7", "font": {"color": "white"}, "id": "empresa", "label": "empresa", "shape": "dot", "size": 50, "title": "Frecuencia: 208\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "desempe\u00f1o, director, empresa", "color": "#bebada", "font": {"color": "white"}, "id": "financiero", "label": "financiero", "shape": "dot", "size": 13.10880829015544, "title": "Frecuencia: 30\u003cbr\u003eCluster: 4\u003cbr\u003eTema: mercado"}, {"associated_words": "cambio, ejecutivo, gesti\u00f3n, implicaci\u00f3n, perspectiva, tiempo", "color": "#bebada", "font": {"color": "white"}, "id": "estrat\u00e9gico", "label": "estrat\u00e9gico", "shape": "dot", "size": 14.559585492227978, "title": "Frecuencia: 37\u003cbr\u003eCluster: 4\u003cbr\u003eTema: mercado"}, {"associated_words": "corporativo, empleado, empresa, evaluaci\u00f3n, financiero, impacto, implicaci\u00f3n, innovaci\u00f3n, laboral", "color": "#ffffb3", "font": {"color": "white"}, "id": "desempe\u00f1o", "label": "desempe\u00f1o", "shape": "dot", "size": 18.29015544041451, "title": "Frecuencia: 55\u003cbr\u003eCluster: 1\u003cbr\u003eTema: efecto"}, {"associated_words": "b\u00fasqueda, corporativo, desempe\u00f1o, empresa, mejorar, negocio, organizaci\u00f3n, perspectiva, producto", "color": "#8dd3c7", "font": {"color": "white"}, "id": "innovaci\u00f3n", "label": "innovaci\u00f3n", "shape": "dot", "size": 19.740932642487046, "title": "Frecuencia: 62\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "desempe\u00f1o, estrategia, evidenciar, innovaci\u00f3n, inversi\u00f3n, pol\u00edtico, responsabilidad, social", "color": "#bebada", "font": {"color": "white"}, "id": "corporativo", "label": "corporativo", "shape": "dot", "size": 18.082901554404145, "title": "Frecuencia: 54\u003cbr\u003eCluster: 4\u003cbr\u003eTema: mercado"}, {"associated_words": "empresa, estrategia, internacional", "color": "#8dd3c7", "font": {"color": "white"}, "id": "internacionalizaci\u00f3n", "label": "internacionalizaci\u00f3n", "shape": "dot", "size": 10.82901554404145, "title": "Frecuencia: 19\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "corporativo, digital, emprendedor, empresa, emp\u00edrico, experimento, industria, internacional, pandemia, plataforma, rendimiento", "color": "#8dd3c7", "font": {"color": "white"}, "id": "evidenciar", "label": "evidenciar", "shape": "dot", "size": 23.8860103626943, "title": "Frecuencia: 82\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "acci\u00f3n, aprendizaje, cliente, corporativo, econom\u00eda, emprendedor, empresa, experiencia, gesti\u00f3n, l\u00ednea, pandemia, pol\u00edtico, psicol\u00f3gico, recurso, responsabilidad, temporal", "color": "#fb8072", "font": {"color": "white"}, "id": "social", "label": "social", "shape": "dot", "size": 22.642487046632123, "title": "Frecuencia: 76\u003cbr\u003eCluster: 3\u003cbr\u003eTema: social"}, {"associated_words": "cadena, corporativo, empresa, social", "color": "#8dd3c7", "font": {"color": "white"}, "id": "responsabilidad", "label": "responsabilidad", "shape": "dot", "size": 10.207253886010363, "title": "Frecuencia: 16\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "corporativo, inversor, social", "color": "#bebada", "font": {"color": "white"}, "id": "pol\u00edtico", "label": "pol\u00edtico", "shape": "dot", "size": 10.207253886010363, "title": "Frecuencia: 16\u003cbr\u003eCluster: 4\u003cbr\u003eTema: mercado"}, {"associated_words": "econom\u00eda, empresa, mercado", "color": "#bebada", "font": {"color": "white"}, "id": "emergente", "label": "emergente", "shape": "dot", "size": 12.487046632124352, "title": "Frecuencia: 27\u003cbr\u003eCluster: 4\u003cbr\u003eTema: mercado"}, {"associated_words": "competencia, dise\u00f1o, efecto, emergente, empresa, experiencia, experimento, extranjero, global, industria, inversi\u00f3n, laboral, mejorar, producto, respuesta", "color": "#bebada", "font": {"color": "white"}, "id": "mercado", "label": "mercado", "shape": "dot", "size": 24.71502590673575, "title": "Frecuencia: 86\u003cbr\u003eCluster: 4\u003cbr\u003eTema: mercado"}, {"associated_words": "basado, crecimiento, emergente, empresa, experimento, social", "color": "#8dd3c7", "font": {"color": "white"}, "id": "econom\u00eda", "label": "econom\u00eda", "shape": "dot", "size": 14.145077720207254, "title": "Frecuencia: 35\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "elecci\u00f3n, experiencia, inversor, mercado", "color": "#bebada", "font": {"color": "white"}, "id": "extranjero", "label": "extranjero", "shape": "dot", "size": 11.036269430051814, "title": "Frecuencia: 20\u003cbr\u003eCluster: 4\u003cbr\u003eTema: mercado"}, {"associated_words": "gesti\u00f3n, responsabilidad, suministro", "color": "#80b1d3", "font": {"color": "white"}, "id": "cadena", "label": "cadena", "shape": "dot", "size": 10.621761658031089, "title": "Frecuencia: 18\u003cbr\u003eCluster: 0\u003cbr\u003eTema: l\u00ednea"}, {"associated_words": "cadena, efecto, emp\u00edrico, gesti\u00f3n", "color": "#ffffb3", "font": {"color": "white"}, "id": "suministro", "label": "suministro", "shape": "dot", "size": 10.207253886010363, "title": "Frecuencia: 16\u003cbr\u003eCluster: 1\u003cbr\u003eTema: efecto"}, {"associated_words": "cadena, crisis, empresa, estrat\u00e9gico, humano, marca, organizaci\u00f3n, pr\u00e1ctica, recurso, sistema, social, suministro, teor\u00eda, tiempo", "color": "#ffffb3", "font": {"color": "white"}, "id": "gesti\u00f3n", "label": "gesti\u00f3n", "shape": "dot", "size": 23.8860103626943, "title": "Frecuencia: 82\u003cbr\u003eCluster: 1\u003cbr\u003eTema: efecto"}, {"associated_words": "capacidad, competencia, contexto, control, cultural, empresa, mercado, rendimiento, suministro", "color": "#ffffb3", "font": {"color": "white"}, "id": "efecto", "label": "efecto", "shape": "dot", "size": 25.958549222797927, "title": "Frecuencia: 92\u003cbr\u003eCluster: 1\u003cbr\u003eTema: efecto"}, {"associated_words": "adquisici\u00f3n, corporativo, empresa, internacionalizaci\u00f3n, negocio", "color": "#bebada", "font": {"color": "white"}, "id": "estrategia", "label": "estrategia", "shape": "dot", "size": 14.559585492227978, "title": "Frecuencia: 37\u003cbr\u003eCluster: 4\u003cbr\u003eTema: mercado"}, {"associated_words": "empresa, evidenciar, internacionalizaci\u00f3n, marketing, negocio", "color": "#8dd3c7", "font": {"color": "white"}, "id": "internacional", "label": "internacional", "shape": "dot", "size": 11.658031088082902, "title": "Frecuencia: 23\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "econom\u00eda, evidenciar, mercado", "color": "#8dd3c7", "font": {"color": "white"}, "id": "experimento", "label": "experimento", "shape": "dot", "size": 10.207253886010363, "title": "Frecuencia: 16\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "efecto, empresa, evidenciar, impacto, sistema", "color": "#ffffb3", "font": {"color": "white"}, "id": "rendimiento", "label": "rendimiento", "shape": "dot", "size": 16.010362694300518, "title": "Frecuencia: 44\u003cbr\u003eCluster: 1\u003cbr\u003eTema: efecto"}, {"associated_words": "empresa, estrat\u00e9gico, global, innovaci\u00f3n, marketing, teor\u00eda", "color": "#8dd3c7", "font": {"color": "white"}, "id": "perspectiva", "label": "perspectiva", "shape": "dot", "size": 17.875647668393782, "title": "Frecuencia: 53\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "capital, gesti\u00f3n, recurso", "color": "#ffffb3", "font": {"color": "white"}, "id": "humano", "label": "humano", "shape": "dot", "size": 10.621761658031089, "title": "Frecuencia: 18\u003cbr\u003eCluster: 1\u003cbr\u003eTema: efecto"}, {"associated_words": "din\u00e1mico, gesti\u00f3n, humano, plataforma, social", "color": "#ffffb3", "font": {"color": "white"}, "id": "recurso", "label": "recurso", "shape": "dot", "size": 13.523316062176166, "title": "Frecuencia: 32\u003cbr\u003eCluster: 1\u003cbr\u003eTema: efecto"}, {"associated_words": "empresa, estructura, humano, influencia, pandemia, psicol\u00f3gico", "color": "#8dd3c7", "font": {"color": "white"}, "id": "capital", "label": "capital", "shape": "dot", "size": 12.694300518134714, "title": "Frecuencia: 28\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "estrategia, innovaci\u00f3n, internacional", "color": "#bebada", "font": {"color": "white"}, "id": "negocio", "label": "negocio", "shape": "dot", "size": 12.901554404145077, "title": "Frecuencia: 29\u003cbr\u003eCluster: 4\u003cbr\u003eTema: mercado"}, {"associated_words": "corporativo, elecci\u00f3n, empresa, impacto, mercado", "color": "#8dd3c7", "font": {"color": "white"}, "id": "inversi\u00f3n", "label": "inversi\u00f3n", "shape": "dot", "size": 12.694300518134714, "title": "Frecuencia: 28\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "comportamiento, extranjero, institucional, pol\u00edtico", "color": "#bebada", "font": {"color": "white"}, "id": "inversor", "label": "inversor", "shape": "dot", "size": 11.450777202072539, "title": "Frecuencia: 22\u003cbr\u003eCluster: 4\u003cbr\u003eTema: mercado"}, {"associated_words": "adquisici\u00f3n, b\u00fasqueda, competencia, empresa, trabajo", "color": "#8dd3c7", "font": {"color": "white"}, "id": "tecnolog\u00eda", "label": "tecnolog\u00eda", "shape": "dot", "size": 15.38860103626943, "title": "Frecuencia: 41\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "conocimiento, din\u00e1mico, dise\u00f1o, empleado, empresa, oportunidad, tecnolog\u00eda, temporal", "color": "#ffffb3", "font": {"color": "white"}, "id": "trabajo", "label": "trabajo", "shape": "dot", "size": 18.29015544041451, "title": "Frecuencia: 55\u003cbr\u003eCluster: 1\u003cbr\u003eTema: efecto"}, {"associated_words": "empresa, innovaci\u00f3n, profesional, tecnolog\u00eda", "color": "#8dd3c7", "font": {"color": "white"}, "id": "b\u00fasqueda", "label": "b\u00fasqueda", "shape": "dot", "size": 10.621761658031089, "title": "Frecuencia: 18\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "atenci\u00f3n, decisi\u00f3n, empresa, inversor", "color": "#8dd3c7", "font": {"color": "white"}, "id": "institucional", "label": "institucional", "shape": "dot", "size": 12.901554404145077, "title": "Frecuencia: 29\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "director, empresa, institucional, mejorar", "color": "#8dd3c7", "font": {"color": "white"}, "id": "decisi\u00f3n", "label": "decisi\u00f3n", "shape": "dot", "size": 13.10880829015544, "title": "Frecuencia: 30\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "consumidor, emprendedor, empresa, inversor, liderazgo, organizaci\u00f3n", "color": "#8dd3c7", "font": {"color": "white"}, "id": "comportamiento", "label": "comportamiento", "shape": "dot", "size": 14.559585492227978, "title": "Frecuencia: 37\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "efecto, emprendimiento, equipo", "color": "#fb8072", "font": {"color": "white"}, "id": "cultural", "label": "cultural", "shape": "dot", "size": 10.82901554404145, "title": "Frecuencia: 19\u003cbr\u003eCluster: 3\u003cbr\u003eTema: social"}, {"associated_words": "conocimiento, extranjero, inversi\u00f3n", "color": "#8dd3c7", "font": {"color": "white"}, "id": "elecci\u00f3n", "label": "elecci\u00f3n", "shape": "dot", "size": 10.207253886010363, "title": "Frecuencia: 16\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "cliente, comentario, consumidor, extranjero, mercado, servicio, social", "color": "#8dd3c7", "font": {"color": "white"}, "id": "experiencia", "label": "experiencia", "shape": "dot", "size": 12.694300518134714, "title": "Frecuencia: 28\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "aprendizaje, cambio, capacidad, comportamiento, conocimiento, control, desarrollo, dise\u00f1o, enfoque, gesti\u00f3n, innovaci\u00f3n, pr\u00e1ctica, p\u00fablico, teor\u00eda", "color": "#8dd3c7", "font": {"color": "white"}, "id": "organizaci\u00f3n", "label": "organizaci\u00f3n", "shape": "dot", "size": 25.751295336787564, "title": "Frecuencia: 91\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "desarrollo, efecto, marketing, organizaci\u00f3n", "color": "#8dd3c7", "font": {"color": "white"}, "id": "capacidad", "label": "capacidad", "shape": "dot", "size": 11.658031088082902, "title": "Frecuencia: 23\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "capital, propiedad, social", "color": "#bebada", "font": {"color": "white"}, "id": "psicol\u00f3gico", "label": "psicol\u00f3gico", "shape": "dot", "size": 10.207253886010363, "title": "Frecuencia: 16\u003cbr\u003eCluster: 4\u003cbr\u003eTema: mercado"}, {"associated_words": "contexto, empresa, futuro, social", "color": "#8dd3c7", "font": {"color": "white"}, "id": "acci\u00f3n", "label": "acci\u00f3n", "shape": "dot", "size": 11.865284974093264, "title": "Frecuencia: 24\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "acci\u00f3n, efecto, empresa", "color": "#bebada", "font": {"color": "white"}, "id": "contexto", "label": "contexto", "shape": "dot", "size": 10.621761658031089, "title": "Frecuencia: 18\u003cbr\u003eCluster: 4\u003cbr\u003eTema: mercado"}, {"associated_words": "desempe\u00f1o, empresa, trabajo", "color": "#ffffb3", "font": {"color": "white"}, "id": "empleado", "label": "empleado", "shape": "dot", "size": 13.937823834196891, "title": "Frecuencia: 34\u003cbr\u003eCluster: 1\u003cbr\u003eTema: efecto"}, {"associated_words": "cambio, gesti\u00f3n, organizaci\u00f3n", "color": "#8dd3c7", "font": {"color": "white"}, "id": "pr\u00e1ctica", "label": "pr\u00e1ctica", "shape": "dot", "size": 12.694300518134714, "title": "Frecuencia: 28\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "control, empresa, estrat\u00e9gico, influencia, organizaci\u00f3n, pr\u00e1ctica", "color": "#ffffb3", "font": {"color": "white"}, "id": "cambio", "label": "cambio", "shape": "dot", "size": 14.974093264248705, "title": "Frecuencia: 39\u003cbr\u003eCluster: 1\u003cbr\u003eTema: efecto"}, {"associated_words": "capacidad, liderazgo, l\u00ednea, organizaci\u00f3n", "color": "#ffffb3", "font": {"color": "white"}, "id": "desarrollo", "label": "desarrollo", "shape": "dot", "size": 12.694300518134714, "title": "Frecuencia: 28\u003cbr\u003eCluster: 1\u003cbr\u003eTema: efecto"}, {"associated_words": "cultural, emprendimiento, oportunidad", "color": "#bebada", "font": {"color": "white"}, "id": "emprendimiento", "label": "emprendimiento", "shape": "dot", "size": 14.766839378238341, "title": "Frecuencia: 38\u003cbr\u003eCluster: 4\u003cbr\u003eTema: mercado"}, {"associated_words": "cultural, directivo, empresa, estructura", "color": "#bebada", "font": {"color": "white"}, "id": "equipo", "label": "equipo", "shape": "dot", "size": 12.901554404145077, "title": "Frecuencia: 29\u003cbr\u003eCluster: 4\u003cbr\u003eTema: mercado"}, {"associated_words": "empresa, evidenciar, oportunidad, plataforma", "color": "#fb8072", "font": {"color": "white"}, "id": "digital", "label": "digital", "shape": "dot", "size": 13.316062176165802, "title": "Frecuencia: 31\u003cbr\u003eCluster: 3\u003cbr\u003eTema: social"}, {"associated_words": "digital, evidenciar, recurso", "color": "#8dd3c7", "font": {"color": "white"}, "id": "plataforma", "label": "plataforma", "shape": "dot", "size": 12.487046632124352, "title": "Frecuencia: 27\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "empresa, innovaci\u00f3n, mercado", "color": "#bebada", "font": {"color": "white"}, "id": "producto", "label": "producto", "shape": "dot", "size": 12.072538860103627, "title": "Frecuencia: 25\u003cbr\u003eCluster: 4\u003cbr\u003eTema: mercado"}, {"associated_words": "director, empresa, equipo", "color": "#bebada", "font": {"color": "white"}, "id": "directivo", "label": "directivo", "shape": "dot", "size": 10.207253886010363, "title": "Frecuencia: 16\u003cbr\u003eCluster: 4\u003cbr\u003eTema: mercado"}, {"associated_words": "futuro, gesti\u00f3n, organizaci\u00f3n, perspectiva", "color": "#ffffb3", "font": {"color": "white"}, "id": "teor\u00eda", "label": "teor\u00eda", "shape": "dot", "size": 15.181347150259068, "title": "Frecuencia: 40\u003cbr\u003eCluster: 1\u003cbr\u003eTema: efecto"}, {"associated_words": "desempe\u00f1o, empresa, mercado", "color": "#fb8072", "font": {"color": "white"}, "id": "laboral", "label": "laboral", "shape": "dot", "size": 11.036269430051814, "title": "Frecuencia: 20\u003cbr\u003eCluster: 3\u003cbr\u003eTema: social"}, {"associated_words": "capital, equipo, temporal", "color": "#8dd3c7", "font": {"color": "white"}, "id": "estructura", "label": "estructura", "shape": "dot", "size": 10.621761658031089, "title": "Frecuencia: 18\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "estructura, social, trabajo", "color": "#ffffb3", "font": {"color": "white"}, "id": "temporal", "label": "temporal", "shape": "dot", "size": 11.658031088082902, "title": "Frecuencia: 23\u003cbr\u003eCluster: 1\u003cbr\u003eTema: efecto"}, {"associated_words": "gesti\u00f3n, respuesta, tiempo", "color": "#fdb462", "font": {"color": "white"}, "id": "crisis", "label": "crisis", "shape": "dot", "size": 10.82901554404145, "title": "Frecuencia: 19\u003cbr\u003eCluster: 5\u003cbr\u003eTema: crisis"}, {"associated_words": "crisis, empresa, mercado", "color": "#8dd3c7", "font": {"color": "white"}, "id": "respuesta", "label": "respuesta", "shape": "dot", "size": 11.450777202072539, "title": "Frecuencia: 22\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "crisis, estrat\u00e9gico, gesti\u00f3n", "color": "#ffffb3", "font": {"color": "white"}, "id": "tiempo", "label": "tiempo", "shape": "dot", "size": 11.865284974093264, "title": "Frecuencia: 24\u003cbr\u003eCluster: 1\u003cbr\u003eTema: efecto"}, {"associated_words": "cambio, efecto, enfoque, organizaci\u00f3n", "color": "#ffffb3", "font": {"color": "white"}, "id": "control", "label": "control", "shape": "dot", "size": 10, "title": "Frecuencia: 15\u003cbr\u003eCluster: 1\u003cbr\u003eTema: efecto"}, {"associated_words": "comportamiento, desarrollo, empresa, global", "color": "#bebada", "font": {"color": "white"}, "id": "liderazgo", "label": "liderazgo", "shape": "dot", "size": 13.10880829015544, "title": "Frecuencia: 30\u003cbr\u003eCluster: 4\u003cbr\u003eTema: mercado"}, {"associated_words": "desempe\u00f1o, evaluaci\u00f3n, futuro, inversi\u00f3n, rendimiento, sistema", "color": "#ffffb3", "font": {"color": "white"}, "id": "impacto", "label": "impacto", "shape": "dot", "size": 15.803108808290155, "title": "Frecuencia: 43\u003cbr\u003eCluster: 1\u003cbr\u003eTema: efecto"}, {"associated_words": "adquisici\u00f3n, empresa, psicol\u00f3gico", "color": "#8dd3c7", "font": {"color": "white"}, "id": "propiedad", "label": "propiedad", "shape": "dot", "size": 10.207253886010363, "title": "Frecuencia: 16\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "experiencia, servicio, social", "color": "#bebada", "font": {"color": "white"}, "id": "cliente", "label": "cliente", "shape": "dot", "size": 11.865284974093264, "title": "Frecuencia: 24\u003cbr\u003eCluster: 4\u003cbr\u003eTema: mercado"}, {"associated_words": "cliente, empresa, experiencia, p\u00fablico", "color": "#ffffb3", "font": {"color": "white"}, "id": "servicio", "label": "servicio", "shape": "dot", "size": 13.523316062176166, "title": "Frecuencia: 32\u003cbr\u003eCluster: 1\u003cbr\u003eTema: efecto"}, {"associated_words": "efecto, mercado, tecnolog\u00eda", "color": "#8dd3c7", "font": {"color": "white"}, "id": "competencia", "label": "competencia", "shape": "dot", "size": 11.450777202072539, "title": "Frecuencia: 22\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "empresa, evidenciar, mercado", "color": "#8dd3c7", "font": {"color": "white"}, "id": "industria", "label": "industria", "shape": "dot", "size": 13.10880829015544, "title": "Frecuencia: 30\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "empresa, enfoque, organizaci\u00f3n, social", "color": "#8dd3c7", "font": {"color": "white"}, "id": "aprendizaje", "label": "aprendizaje", "shape": "dot", "size": 14.352331606217616, "title": "Frecuencia: 36\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "influencia, recurso, trabajo", "color": "#ffffb3", "font": {"color": "white"}, "id": "din\u00e1mico", "label": "din\u00e1mico", "shape": "dot", "size": 12.279792746113989, "title": "Frecuencia: 26\u003cbr\u003eCluster: 1\u003cbr\u003eTema: efecto"}, {"associated_words": "cambio, capital, din\u00e1mico, profesional", "color": "#8dd3c7", "font": {"color": "white"}, "id": "influencia", "label": "influencia", "shape": "dot", "size": 12.279792746113989, "title": "Frecuencia: 26\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "aprendizaje, control, organizaci\u00f3n", "color": "#ffffb3", "font": {"color": "white"}, "id": "enfoque", "label": "enfoque", "shape": "dot", "size": 12.072538860103627, "title": "Frecuencia: 25\u003cbr\u003eCluster: 1\u003cbr\u003eTema: efecto"}, {"associated_words": "basado, elecci\u00f3n, organizaci\u00f3n, trabajo", "color": "#8dd3c7", "font": {"color": "white"}, "id": "conocimiento", "label": "conocimiento", "shape": "dot", "size": 12.072538860103627, "title": "Frecuencia: 25\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "conocimiento, econom\u00eda, empresa", "color": "#ffffb3", "font": {"color": "white"}, "id": "basado", "label": "basado", "shape": "dot", "size": 12.901554404145077, "title": "Frecuencia: 29\u003cbr\u003eCluster: 1\u003cbr\u003eTema: efecto"}, {"associated_words": "empresa, organizaci\u00f3n, servicio", "color": "#bebada", "font": {"color": "white"}, "id": "p\u00fablico", "label": "p\u00fablico", "shape": "dot", "size": 11.450777202072539, "title": "Frecuencia: 22\u003cbr\u003eCluster: 4\u003cbr\u003eTema: mercado"}, {"associated_words": "empresa, estrategia, propiedad, tecnolog\u00eda", "color": "#8dd3c7", "font": {"color": "white"}, "id": "adquisici\u00f3n", "label": "adquisici\u00f3n", "shape": "dot", "size": 10.414507772020725, "title": "Frecuencia: 17\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "evaluaci\u00f3n, gesti\u00f3n, impacto, rendimiento", "color": "#ffffb3", "font": {"color": "white"}, "id": "sistema", "label": "sistema", "shape": "dot", "size": 11.658031088082902, "title": "Frecuencia: 23\u003cbr\u003eCluster: 1\u003cbr\u003eTema: efecto"}, {"associated_words": "comportamiento, experiencia, marca", "color": "#bebada", "font": {"color": "white"}, "id": "consumidor", "label": "consumidor", "shape": "dot", "size": 14.145077720207254, "title": "Frecuencia: 35\u003cbr\u003eCluster: 4\u003cbr\u003eTema: mercado"}, {"associated_words": "comentario, consumidor, gesti\u00f3n", "color": "#80b1d3", "font": {"color": "white"}, "id": "marca", "label": "marca", "shape": "dot", "size": 11.243523316062177, "title": "Frecuencia: 21\u003cbr\u003eCluster: 0\u003cbr\u003eTema: l\u00ednea"}, {"associated_words": "experiencia, marca, marketing", "color": "#8dd3c7", "font": {"color": "white"}, "id": "comentario", "label": "comentario", "shape": "dot", "size": 10.414507772020725, "title": "Frecuencia: 17\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "econom\u00eda, empresa, marketing", "color": "#ffffb3", "font": {"color": "white"}, "id": "crecimiento", "label": "crecimiento", "shape": "dot", "size": 10.414507772020725, "title": "Frecuencia: 17\u003cbr\u003eCluster: 1\u003cbr\u003eTema: efecto"}, {"associated_words": "capacidad, comentario, crecimiento, internacional, perspectiva", "color": "#bebada", "font": {"color": "white"}, "id": "marketing", "label": "marketing", "shape": "dot", "size": 12.072538860103627, "title": "Frecuencia: 25\u003cbr\u003eCluster: 4\u003cbr\u003eTema: mercado"}, {"associated_words": "desempe\u00f1o, impacto, sistema", "color": "#8dd3c7", "font": {"color": "white"}, "id": "evaluaci\u00f3n", "label": "evaluaci\u00f3n", "shape": "dot", "size": 11.658031088082902, "title": "Frecuencia: 23\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "ejecutivo, implicaci\u00f3n, institucional, l\u00ednea", "color": "#8dd3c7", "font": {"color": "white"}, "id": "atenci\u00f3n", "label": "atenci\u00f3n", "shape": "dot", "size": 10, "title": "Frecuencia: 15\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "atenci\u00f3n, desarrollo, social", "color": "#80b1d3", "font": {"color": "white"}, "id": "l\u00ednea", "label": "l\u00ednea", "shape": "dot", "size": 11.450777202072539, "title": "Frecuencia: 22\u003cbr\u003eCluster: 0\u003cbr\u003eTema: l\u00ednea"}, {"associated_words": "atenci\u00f3n, desempe\u00f1o, estrat\u00e9gico", "color": "#8dd3c7", "font": {"color": "white"}, "id": "implicaci\u00f3n", "label": "implicaci\u00f3n", "shape": "dot", "size": 10.414507772020725, "title": "Frecuencia: 17\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "liderazgo, mercado, perspectiva", "color": "#fb8072", "font": {"color": "white"}, "id": "global", "label": "global", "shape": "dot", "size": 11.036269430051814, "title": "Frecuencia: 20\u003cbr\u003eCluster: 3\u003cbr\u003eTema: social"}, {"associated_words": "mercado, organizaci\u00f3n, trabajo", "color": "#ffffb3", "font": {"color": "white"}, "id": "dise\u00f1o", "label": "dise\u00f1o", "shape": "dot", "size": 10.621761658031089, "title": "Frecuencia: 18\u003cbr\u003eCluster: 1\u003cbr\u003eTema: efecto"}, {"associated_words": "capital, evidenciar, social", "color": "#fdb462", "font": {"color": "white"}, "id": "pandemia", "label": "pandemia", "shape": "dot", "size": 10, "title": "Frecuencia: 15\u003cbr\u003eCluster: 5\u003cbr\u003eTema: crisis"}, {"associated_words": "decisi\u00f3n, emp\u00edrico, innovaci\u00f3n, mercado", "color": "#ffffb3", "font": {"color": "white"}, "id": "mejorar", "label": "mejorar", "shape": "dot", "size": 10.621761658031089, "title": "Frecuencia: 18\u003cbr\u003eCluster: 1\u003cbr\u003eTema: efecto"}, {"associated_words": "comportamiento, evidenciar, g\u00e9nero, social", "color": "#bebada", "font": {"color": "white"}, "id": "emprendedor", "label": "emprendedor", "shape": "dot", "size": 10.82901554404145, "title": "Frecuencia: 19\u003cbr\u003eCluster: 4\u003cbr\u003eTema: mercado"}, {"associated_words": "digital, emprendimiento, trabajo", "color": "#8dd3c7", "font": {"color": "white"}, "id": "oportunidad", "label": "oportunidad", "shape": "dot", "size": 10.207253886010363, "title": "Frecuencia: 16\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}, {"associated_words": "evidenciar, mejorar, suministro", "color": "#ffffb3", "font": {"color": "white"}, "id": "emp\u00edrico", "label": "emp\u00edrico", "shape": "dot", "size": 10.414507772020725, "title": "Frecuencia: 17\u003cbr\u003eCluster: 1\u003cbr\u003eTema: efecto"}, {"associated_words": "emprendedor, g\u00e9nero", "color": "#fb8072", "font": {"color": "white"}, "id": "g\u00e9nero", "label": "g\u00e9nero", "shape": "dot", "size": 10.82901554404145, "title": "Frecuencia: 19\u003cbr\u003eCluster: 3\u003cbr\u003eTema: social"}, {"associated_words": "acci\u00f3n, impacto, teor\u00eda", "color": "#ffffb3", "font": {"color": "white"}, "id": "futuro", "label": "futuro", "shape": "dot", "size": 11.450777202072539, "title": "Frecuencia: 22\u003cbr\u003eCluster: 1\u003cbr\u003eTema: efecto"}, {"associated_words": "b\u00fasqueda, empresa, influencia", "color": "#8dd3c7", "font": {"color": "white"}, "id": "profesional", "label": "profesional", "shape": "dot", "size": 10.207253886010363, "title": "Frecuencia: 16\u003cbr\u003eCluster: 2\u003cbr\u003eTema: empresa"}]);
+                  edges = new vis.DataSet([{"from": "director", "title": "Peso: 40", "to": "ejecutivo", "value": 40}, {"from": "director", "title": "Peso: 12", "to": "empresa", "value": 12}, {"from": "director", "title": "Peso: 8", "to": "financiero", "value": 8}, {"from": "director", "title": "Peso: 2", "to": "directivo", "value": 2}, {"from": "director", "title": "Peso: 4", "to": "decisi\u00f3n", "value": 4}, {"from": "ejecutivo", "title": "Peso: 12", "to": "empresa", "value": 12}, {"from": "ejecutivo", "title": "Peso: 4", "to": "estrat\u00e9gico", "value": 4}, {"from": "ejecutivo", "title": "Peso: 4", "to": "atenci\u00f3n", "value": 4}, {"from": "empresa", "title": "Peso: 36", "to": "desempe\u00f1o", "value": 36}, {"from": "empresa", "title": "Peso: 22", "to": "internacionalizaci\u00f3n", "value": 22}, {"from": "empresa", "title": "Peso: 22", "to": "evidenciar", "value": 22}, {"from": "empresa", "title": "Peso: 14", "to": "social", "value": 14}, {"from": "empresa", "title": "Peso: 18", "to": "emergente", "value": 18}, {"from": "empresa", "title": "Peso: 16", "to": "mercado", "value": 16}, {"from": "empresa", "title": "Peso: 4", "to": "responsabilidad", "value": 4}, {"from": "empresa", "title": "Peso: 18", "to": "rendimiento", "value": 18}, {"from": "empresa", "title": "Peso: 18", "to": "innovaci\u00f3n", "value": 18}, {"from": "empresa", "title": "Peso: 16", "to": "perspectiva", "value": 16}, {"from": "empresa", "title": "Peso: 16", "to": "internacional", "value": 16}, {"from": "empresa", "title": "Peso: 14", "to": "inversi\u00f3n", "value": 14}, {"from": "empresa", "title": "Peso: 14", "to": "econom\u00eda", "value": 14}, {"from": "empresa", "title": "Peso: 12", "to": "tecnolog\u00eda", "value": 12}, {"from": "empresa", "title": "Peso: 8", "to": "institucional", "value": 8}, {"from": "empresa", "title": "Peso: 12", "to": "efecto", "value": 12}, {"from": "empresa", "title": "Peso: 12", "to": "gesti\u00f3n", "value": 12}, {"from": "empresa", "title": "Peso: 6", "to": "capital", "value": 6}, {"from": "empresa", "title": "Peso: 10", "to": "acci\u00f3n", "value": 10}, {"from": "empresa", "title": "Peso: 10", "to": "empleado", "value": 10}, {"from": "empresa", "title": "Peso: 4", "to": "digital", "value": 4}, {"from": "empresa", "title": "Peso: 10", "to": "cambio", "value": 10}, {"from": "empresa", "title": "Peso: 6", "to": "producto", "value": 6}, {"from": "empresa", "title": "Peso: 8", "to": "directivo", "value": 8}, {"from": "empresa", "title": "Peso: 8", "to": "b\u00fasqueda", "value": 8}, {"from": "empresa", "title": "Peso: 6", "to": "laboral", "value": 6}, {"from": "empresa", "title": "Peso: 6", "to": "estrategia", "value": 6}, {"from": "empresa", "title": "Peso: 6", "to": "respuesta", "value": 6}, {"from": "empresa", "title": "Peso: 8", "to": "financiero", "value": 8}, {"from": "empresa", "title": "Peso: 8", "to": "liderazgo", "value": 8}, {"from": "empresa", "title": "Peso: 8", "to": "trabajo", "value": 8}, {"from": "empresa", "title": "Peso: 6", "to": "comportamiento", "value": 6}, {"from": "empresa", "title": "Peso: 6", "to": "industria", "value": 6}, {"from": "empresa", "title": "Peso: 6", "to": "aprendizaje", "value": 6}, {"from": "empresa", "title": "Peso: 6", "to": "equipo", "value": 6}, {"from": "empresa", "title": "Peso: 6", "to": "contexto", "value": 6}, {"from": "empresa", "title": "Peso: 4", "to": "p\u00fablico", "value": 4}, {"from": "empresa", "title": "Peso: 6", "to": "servicio", "value": 6}, {"from": "empresa", "title": "Peso: 6", "to": "adquisici\u00f3n", "value": 6}, {"from": "empresa", "title": "Peso: 6", "to": "crecimiento", "value": 6}, {"from": "empresa", "title": "Peso: 6", "to": "propiedad", "value": 6}, {"from": "empresa", "title": "Peso: 4", "to": "decisi\u00f3n", "value": 4}, {"from": "empresa", "title": "Peso: 4", "to": "basado", "value": 4}, {"from": "empresa", "title": "Peso: 2", "to": "profesional", "value": 2}, {"from": "financiero", "title": "Peso: 8", "to": "desempe\u00f1o", "value": 8}, {"from": "estrat\u00e9gico", "title": "Peso: 8", "to": "perspectiva", "value": 8}, {"from": "estrat\u00e9gico", "title": "Peso: 8", "to": "cambio", "value": 8}, {"from": "estrat\u00e9gico", "title": "Peso: 8", "to": "gesti\u00f3n", "value": 8}, {"from": "estrat\u00e9gico", "title": "Peso: 6", "to": "tiempo", "value": 6}, {"from": "estrat\u00e9gico", "title": "Peso: 2", "to": "implicaci\u00f3n", "value": 2}, {"from": "desempe\u00f1o", "title": "Peso: 12", "to": "innovaci\u00f3n", "value": 12}, {"from": "desempe\u00f1o", "title": "Peso: 12", "to": "corporativo", "value": 12}, {"from": "desempe\u00f1o", "title": "Peso: 8", "to": "empleado", "value": 8}, {"from": "desempe\u00f1o", "title": "Peso: 8", "to": "laboral", "value": 8}, {"from": "desempe\u00f1o", "title": "Peso: 8", "to": "impacto", "value": 8}, {"from": "desempe\u00f1o", "title": "Peso: 6", "to": "evaluaci\u00f3n", "value": 6}, {"from": "desempe\u00f1o", "title": "Peso: 4", "to": "implicaci\u00f3n", "value": 4}, {"from": "innovaci\u00f3n", "title": "Peso: 12", "to": "corporativo", "value": 12}, {"from": "innovaci\u00f3n", "title": "Peso: 8", "to": "perspectiva", "value": 8}, {"from": "innovaci\u00f3n", "title": "Peso: 8", "to": "negocio", "value": 8}, {"from": "innovaci\u00f3n", "title": "Peso: 12", "to": "organizaci\u00f3n", "value": 12}, {"from": "innovaci\u00f3n", "title": "Peso: 6", "to": "producto", "value": 6}, {"from": "innovaci\u00f3n", "title": "Peso: 6", "to": "b\u00fasqueda", "value": 6}, {"from": "innovaci\u00f3n", "title": "Peso: 4", "to": "mejorar", "value": 4}, {"from": "corporativo", "title": "Peso: 26", "to": "social", "value": 26}, {"from": "corporativo", "title": "Peso: 16", "to": "responsabilidad", "value": 16}, {"from": "corporativo", "title": "Peso: 12", "to": "pol\u00edtico", "value": 12}, {"from": "corporativo", "title": "Peso: 12", "to": "evidenciar", "value": 12}, {"from": "corporativo", "title": "Peso: 6", "to": "inversi\u00f3n", "value": 6}, {"from": "corporativo", "title": "Peso: 8", "to": "estrategia", "value": 8}, {"from": "internacionalizaci\u00f3n", "title": "Peso: 6", "to": "estrategia", "value": 6}, {"from": "internacionalizaci\u00f3n", "title": "Peso: 4", "to": "internacional", "value": 4}, {"from": "evidenciar", "title": "Peso: 14", "to": "experimento", "value": 14}, {"from": "evidenciar", "title": "Peso: 6", "to": "rendimiento", "value": 6}, {"from": "evidenciar", "title": "Peso: 10", "to": "internacional", "value": 10}, {"from": "evidenciar", "title": "Peso: 4", "to": "digital", "value": 4}, {"from": "evidenciar", "title": "Peso: 6", "to": "plataforma", "value": 6}, {"from": "evidenciar", "title": "Peso: 8", "to": "industria", "value": 8}, {"from": "evidenciar", "title": "Peso: 4", "to": "pandemia", "value": 4}, {"from": "evidenciar", "title": "Peso: 4", "to": "emprendedor", "value": 4}, {"from": "evidenciar", "title": "Peso: 4", "to": "emp\u00edrico", "value": 4}, {"from": "social", "title": "Peso: 22", "to": "responsabilidad", "value": 22}, {"from": "social", "title": "Peso: 8", "to": "recurso", "value": 8}, {"from": "social", "title": "Peso: 6", "to": "econom\u00eda", "value": 6}, {"from": "social", "title": "Peso: 2", "to": "pol\u00edtico", "value": 2}, {"from": "social", "title": "Peso: 10", "to": "gesti\u00f3n", "value": 10}, {"from": "social", "title": "Peso: 4", "to": "acci\u00f3n", "value": 4}, {"from": "social", "title": "Peso: 6", "to": "temporal", "value": 6}, {"from": "social", "title": "Peso: 4", "to": "psicol\u00f3gico", "value": 4}, {"from": "social", "title": "Peso: 8", "to": "cliente", "value": 8}, {"from": "social", "title": "Peso: 8", "to": "aprendizaje", "value": 8}, {"from": "social", "title": "Peso: 6", "to": "experiencia", "value": 6}, {"from": "social", "title": "Peso: 4", "to": "pandemia", "value": 4}, {"from": "social", "title": "Peso: 4", "to": "l\u00ednea", "value": 4}, {"from": "social", "title": "Peso: 4", "to": "emprendedor", "value": 4}, {"from": "responsabilidad", "title": "Peso: 4", "to": "cadena", "value": 4}, {"from": "pol\u00edtico", "title": "Peso: 4", "to": "inversor", "value": 4}, {"from": "emergente", "title": "Peso: 26", "to": "mercado", "value": 26}, {"from": "emergente", "title": "Peso: 14", "to": "econom\u00eda", "value": 14}, {"from": "mercado", "title": "Peso: 12", "to": "extranjero", "value": 12}, {"from": "mercado", "title": "Peso: 4", "to": "inversi\u00f3n", "value": 4}, {"from": "mercado", "title": "Peso: 6", "to": "experimento", "value": 6}, {"from": "mercado", "title": "Peso: 12", "to": "efecto", "value": 12}, {"from": "mercado", "title": "Peso: 10", "to": "producto", "value": 10}, {"from": "mercado", "title": "Peso: 6", "to": "laboral", "value": 6}, {"from": "mercado", "title": "Peso: 6", "to": "respuesta", "value": 6}, {"from": "mercado", "title": "Peso: 8", "to": "competencia", "value": 8}, {"from": "mercado", "title": "Peso: 6", "to": "industria", "value": 6}, {"from": "mercado", "title": "Peso: 6", "to": "experiencia", "value": 6}, {"from": "mercado", "title": "Peso: 4", "to": "global", "value": 4}, {"from": "mercado", "title": "Peso: 4", "to": "dise\u00f1o", "value": 4}, {"from": "mercado", "title": "Peso: 4", "to": "mejorar", "value": 4}, {"from": "econom\u00eda", "title": "Peso: 2", "to": "experimento", "value": 2}, {"from": "econom\u00eda", "title": "Peso: 4", "to": "crecimiento", "value": 4}, {"from": "econom\u00eda", "title": "Peso: 4", "to": "basado", "value": 4}, {"from": "extranjero", "title": "Peso: 4", "to": "inversor", "value": 4}, {"from": "extranjero", "title": "Peso: 4", "to": "elecci\u00f3n", "value": 4}, {"from": "extranjero", "title": "Peso: 4", "to": "experiencia", "value": 4}, {"from": "cadena", "title": "Peso: 24", "to": "suministro", "value": 24}, {"from": "cadena", "title": "Peso: 6", "to": "gesti\u00f3n", "value": 6}, {"from": "suministro", "title": "Peso: 6", "to": "gesti\u00f3n", "value": 6}, {"from": "suministro", "title": "Peso: 4", "to": "efecto", "value": 4}, {"from": "suministro", "title": "Peso: 4", "to": "emp\u00edrico", "value": 4}, {"from": "gesti\u00f3n", "title": "Peso: 10", "to": "humano", "value": 10}, {"from": "gesti\u00f3n", "title": "Peso: 10", "to": "recurso", "value": 10}, {"from": "gesti\u00f3n", "title": "Peso: 8", "to": "organizaci\u00f3n", "value": 8}, {"from": "gesti\u00f3n", "title": "Peso: 10", "to": "pr\u00e1ctica", "value": 10}, {"from": "gesti\u00f3n", "title": "Peso: 6", "to": "teor\u00eda", "value": 6}, {"from": "gesti\u00f3n", "title": "Peso: 8", "to": "crisis", "value": 8}, {"from": "gesti\u00f3n", "title": "Peso: 4", "to": "tiempo", "value": 4}, {"from": "gesti\u00f3n", "title": "Peso: 6", "to": "sistema", "value": 6}, {"from": "gesti\u00f3n", "title": "Peso: 4", "to": "marca", "value": 4}, {"from": "efecto", "title": "Peso: 8", "to": "rendimiento", "value": 8}, {"from": "efecto", "title": "Peso: 10", "to": "cultural", "value": 10}, {"from": "efecto", "title": "Peso: 6", "to": "capacidad", "value": 6}, {"from": "efecto", "title": "Peso: 6", "to": "control", "value": 6}, {"from": "efecto", "title": "Peso: 4", "to": "competencia", "value": 4}, {"from": "efecto", "title": "Peso: 4", "to": "contexto", "value": 4}, {"from": "estrategia", "title": "Peso: 4", "to": "negocio", "value": 4}, {"from": "estrategia", "title": "Peso: 6", "to": "adquisici\u00f3n", "value": 6}, {"from": "internacional", "title": "Peso: 12", "to": "negocio", "value": 12}, {"from": "internacional", "title": "Peso: 4", "to": "marketing", "value": 4}, {"from": "rendimiento", "title": "Peso: 4", "to": "impacto", "value": 4}, {"from": "rendimiento", "title": "Peso: 4", "to": "sistema", "value": 4}, {"from": "perspectiva", "title": "Peso: 6", "to": "teor\u00eda", "value": 6}, {"from": "perspectiva", "title": "Peso: 6", "to": "marketing", "value": 6}, {"from": "perspectiva", "title": "Peso: 4", "to": "global", "value": 4}, {"from": "humano", "title": "Peso: 16", "to": "recurso", "value": 16}, {"from": "humano", "title": "Peso: 10", "to": "capital", "value": 10}, {"from": "recurso", "title": "Peso: 4", "to": "plataforma", "value": 4}, {"from": "recurso", "title": "Peso: 6", "to": "din\u00e1mico", "value": 6}, {"from": "capital", "title": "Peso: 8", "to": "psicol\u00f3gico", "value": 8}, {"from": "capital", "title": "Peso: 6", "to": "estructura", "value": 6}, {"from": "capital", "title": "Peso: 6", "to": "influencia", "value": 6}, {"from": "capital", "title": "Peso: 2", "to": "pandemia", "value": 2}, {"from": "inversi\u00f3n", "title": "Peso: 4", "to": "impacto", "value": 4}, {"from": "inversi\u00f3n", "title": "Peso: 4", "to": "elecci\u00f3n", "value": 4}, {"from": "inversor", "title": "Peso: 12", "to": "institucional", "value": 12}, {"from": "inversor", "title": "Peso: 4", "to": "comportamiento", "value": 4}, {"from": "tecnolog\u00eda", "title": "Peso: 6", "to": "trabajo", "value": 6}, {"from": "tecnolog\u00eda", "title": "Peso: 6", "to": "b\u00fasqueda", "value": 6}, {"from": "tecnolog\u00eda", "title": "Peso: 6", "to": "competencia", "value": 6}, {"from": "tecnolog\u00eda", "title": "Peso: 6", "to": "adquisici\u00f3n", "value": 6}, {"from": "trabajo", "title": "Peso: 6", "to": "empleado", "value": 6}, {"from": "trabajo", "title": "Peso: 6", "to": "temporal", "value": 6}, {"from": "trabajo", "title": "Peso: 6", "to": "din\u00e1mico", "value": 6}, {"from": "trabajo", "title": "Peso: 6", "to": "conocimiento", "value": 6}, {"from": "trabajo", "title": "Peso: 4", "to": "dise\u00f1o", "value": 4}, {"from": "trabajo", "title": "Peso: 4", "to": "oportunidad", "value": 4}, {"from": "b\u00fasqueda", "title": "Peso: 2", "to": "profesional", "value": 2}, {"from": "institucional", "title": "Peso: 4", "to": "decisi\u00f3n", "value": 4}, {"from": "institucional", "title": "Peso: 4", "to": "atenci\u00f3n", "value": 4}, {"from": "decisi\u00f3n", "title": "Peso: 4", "to": "mejorar", "value": 4}, {"from": "comportamiento", "title": "Peso: 6", "to": "liderazgo", "value": 6}, {"from": "comportamiento", "title": "Peso: 8", "to": "organizaci\u00f3n", "value": 8}, {"from": "comportamiento", "title": "Peso: 4", "to": "consumidor", "value": 4}, {"from": "comportamiento", "title": "Peso: 4", "to": "emprendedor", "value": 4}, {"from": "cultural", "title": "Peso: 6", "to": "emprendimiento", "value": 6}, {"from": "cultural", "title": "Peso: 6", "to": "equipo", "value": 6}, {"from": "elecci\u00f3n", "title": "Peso: 4", "to": "conocimiento", "value": 4}, {"from": "experiencia", "title": "Peso: 6", "to": "cliente", "value": 6}, {"from": "experiencia", "title": "Peso: 6", "to": "servicio", "value": 6}, {"from": "experiencia", "title": "Peso: 4", "to": "consumidor", "value": 4}, {"from": "experiencia", "title": "Peso: 4", "to": "comentario", "value": 4}, {"from": "organizaci\u00f3n", "title": "Peso: 10", "to": "capacidad", "value": 10}, {"from": "organizaci\u00f3n", "title": "Peso: 4", "to": "pr\u00e1ctica", "value": 4}, {"from": "organizaci\u00f3n", "title": "Peso: 8", "to": "cambio", "value": 8}, {"from": "organizaci\u00f3n", "title": "Peso: 8", "to": "teor\u00eda", "value": 8}, {"from": "organizaci\u00f3n", "title": "Peso: 8", "to": "control", "value": 8}, {"from": "organizaci\u00f3n", "title": "Peso: 8", "to": "desarrollo", "value": 8}, {"from": "organizaci\u00f3n", "title": "Peso: 6", "to": "aprendizaje", "value": 6}, {"from": "organizaci\u00f3n", "title": "Peso: 6", "to": "enfoque", "value": 6}, {"from": "organizaci\u00f3n", "title": "Peso: 4", "to": "conocimiento", "value": 4}, {"from": "organizaci\u00f3n", "title": "Peso: 6", "to": "p\u00fablico", "value": 6}, {"from": "organizaci\u00f3n", "title": "Peso: 4", "to": "dise\u00f1o", "value": 4}, {"from": "capacidad", "title": "Peso: 6", "to": "desarrollo", "value": 6}, {"from": "capacidad", "title": "Peso: 4", "to": "marketing", "value": 4}, {"from": "psicol\u00f3gico", "title": "Peso: 4", "to": "propiedad", "value": 4}, {"from": "acci\u00f3n", "title": "Peso: 4", "to": "contexto", "value": 4}, {"from": "acci\u00f3n", "title": "Peso: 2", "to": "futuro", "value": 2}, {"from": "pr\u00e1ctica", "title": "Peso: 4", "to": "cambio", "value": 4}, {"from": "cambio", "title": "Peso: 6", "to": "control", "value": 6}, {"from": "cambio", "title": "Peso: 6", "to": "influencia", "value": 6}, {"from": "desarrollo", "title": "Peso: 6", "to": "liderazgo", "value": 6}, {"from": "desarrollo", "title": "Peso: 4", "to": "l\u00ednea", "value": 4}, {"from": "emprendimiento", "title": "Peso: 6", "to": "emprendimiento", "value": 6}, {"from": "emprendimiento", "title": "Peso: 2", "to": "oportunidad", "value": 2}, {"from": "equipo", "title": "Peso: 4", "to": "directivo", "value": 4}, {"from": "equipo", "title": "Peso: 8", "to": "estructura", "value": 8}, {"from": "digital", "title": "Peso: 10", "to": "plataforma", "value": 10}, {"from": "digital", "title": "Peso: 2", "to": "oportunidad", "value": 2}, {"from": "teor\u00eda", "title": "Peso: 2", "to": "futuro", "value": 2}, {"from": "estructura", "title": "Peso: 8", "to": "temporal", "value": 8}, {"from": "crisis", "title": "Peso: 8", "to": "respuesta", "value": 8}, {"from": "crisis", "title": "Peso: 6", "to": "tiempo", "value": 6}, {"from": "control", "title": "Peso: 4", "to": "enfoque", "value": 4}, {"from": "liderazgo", "title": "Peso: 4", "to": "global", "value": 4}, {"from": "impacto", "title": "Peso: 4", "to": "sistema", "value": 4}, {"from": "impacto", "title": "Peso: 4", "to": "evaluaci\u00f3n", "value": 4}, {"from": "impacto", "title": "Peso: 2", "to": "futuro", "value": 2}, {"from": "propiedad", "title": "Peso: 4", "to": "adquisici\u00f3n", "value": 4}, {"from": "cliente", "title": "Peso: 6", "to": "servicio", "value": 6}, {"from": "servicio", "title": "Peso: 6", "to": "p\u00fablico", "value": 6}, {"from": "aprendizaje", "title": "Peso: 4", "to": "enfoque", "value": 4}, {"from": "din\u00e1mico", "title": "Peso: 6", "to": "influencia", "value": 6}, {"from": "influencia", "title": "Peso: 2", "to": "profesional", "value": 2}, {"from": "conocimiento", "title": "Peso: 4", "to": "basado", "value": 4}, {"from": "sistema", "title": "Peso: 4", "to": "evaluaci\u00f3n", "value": 4}, {"from": "consumidor", "title": "Peso: 6", "to": "marca", "value": 6}, {"from": "marca", "title": "Peso: 4", "to": "comentario", "value": 4}, {"from": "comentario", "title": "Peso: 4", "to": "marketing", "value": 4}, {"from": "crecimiento", "title": "Peso: 4", "to": "marketing", "value": 4}, {"from": "atenci\u00f3n", "title": "Peso: 4", "to": "l\u00ednea", "value": 4}, {"from": "atenci\u00f3n", "title": "Peso: 2", "to": "implicaci\u00f3n", "value": 2}, {"from": "mejorar", "title": "Peso: 2", "to": "emp\u00edrico", "value": 2}, {"from": "emprendedor", "title": "Peso: 2", "to": "g\u00e9nero", "value": 2}, {"from": "g\u00e9nero", "title": "Peso: 2", "to": "g\u00e9nero", "value": 2}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"nodes": {"shape": "dot", "font": {"size": 14}, "color": {"border": "#222222", "background": "#222222", "highlight": {"border": "#FFFF00", "background": "#FFDD00"}, "hover": {"border": "#FFD700", "background": "#FFD700"}, "opacity": 0.5}}, "edges": {"arrows": {"to": {"enabled": false}}, "smooth": {"enabled": true}, "color": {"color": "#848484", "highlight": "#FF0000", "hover": "#FFA500", "opacity": 0.3}}, "physics": {"enabled": true}, "interaction": {"hover": true, "navigationButtons": true, "zoomView": true}, "layout": {"improvedLayout": true}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+                    network.on("selectNode", neighbourhoodHighlight);
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

@@ -1,0 +1,133 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+    background-color: #f4f4f4;
+    color: #333;
+}
+.container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+
+h1 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+p {
+    margin-bottom: 15px;
+}
+
+.menu-link {
+    display: block;
+    margin: 20px 0;
+    padding: 18px;
+    background-color: #3498db;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s;
+}
+.menu-link:hover {
+    background-color: #2980b9;
+    transform: translateY(-3px);
+}
+
+
+#yearSelector {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 250px;
+}
+#graphContainer {
+    margin-top: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    overflow: hidden;
+}
+#associatedWordsDisplay {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-align: left;
+}
+#associatedWordsDisplay h3 {
+    margin-top: 0;
+}
+#associatedWordsDisplay ul {
+    list-style: none;
+    padding: 0;
+}
+#associatedWordsDisplay li {
+    background-color: #eee;
+    margin-bottom: 5px;
+    padding: 8px;
+    border-radius: 3px;
+}
+.menu-link { 
+    display: block; 
+    margin: 20px 0; 
+    padding: 18px; 
+    background-color: #3498db; 
+    color: white; 
+    text-decoration: none; 
+    border-radius: 8px; 
+    font-weight: bold; 
+    transition: background-color 0.3s, transform 0.2s; }
+.menu-link:hover { background-color: #2980b9; 
+    transform: translateY(-3px); 
+}
+
+header {
+    background-color: #311eaa; 
+    padding: 15px 0; 
+    text-align: center;
+    align-items: center;
+}
+/* Estilos para el Header y la Navegación */
+header {
+    background-color: #2c3e50; /* Color de fondo oscuro para el encabezado */
+    padding: 15px 0;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Sombra sutil */
+}
+
+header nav {
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* Espacio entre los botones */
+}
+
+.nav-button {
+    color: #fff; /* Color del texto blanco */
+    text-decoration: none;
+    font-weight: bold;
+    padding: 10px 20px; /* Espacio interno para el efecto de botón */
+    border-radius: 5px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.nav-button:hover {
+    transform: translateY(-2px); /* Efecto de "levantar" el botón */
+}
+
+footer {
+    background-color: #34495e; 
+    color: white;
+    padding: 10px 0;
+    text-align: center; 
+    font-size: 0.9em; 
+    position: relative; 
+    bottom: 0; 
+    width: 100%;
+}

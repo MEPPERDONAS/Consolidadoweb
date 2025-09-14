@@ -73,9 +73,8 @@ p {
 
 header {
     background-color:var(--color-primario);
-    padding: 15px 0;
+    padding: 0 0;
     text-align: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     position: sticky;
 }
 
@@ -112,6 +111,24 @@ header nav {
 .nav-button:hover {
     background-color: #2980b9;
     transform: translateY(-2px);
+}
+
+.nav-button.active-link {
+    background-color: #FFFFFF;      /* Fondo blanco */
+    color: var(--color-primario);
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    font-weight: bold;
+    /* Anulamos la animación de 'hover' para que se quede fijo */
+    transform: translateY(0); 
+}
+
+/* Opcional: Ajusta el :hover del botón activo para que no 
+  vuelva al estilo azul por defecto.
+*/
+.nav-button.active-link:hover {
+    background-color: #f0f0f0; /* Un gris muy claro al pasar el ratón */
+    color: var(--color-primario);
 }
 
 footer {
@@ -295,7 +312,7 @@ footer {
         flex-wrap: wrap;
     }
     .nav-button {
-        padding: 4px 8px;
+        padding: 8px 8px;
         font-size: 12px;
     }
 }

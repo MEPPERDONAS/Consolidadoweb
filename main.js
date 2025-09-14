@@ -24,6 +24,37 @@ function loadHTML(elementId, filePath) {
     });
 }
 
+// Función para resaltar el enlace de navegación activo
+function highlightActiveNav() {
+    // Obtiene la ruta de la página actual (ej: "/NAL/index.html")
+    const currentPathname = window.location.pathname;
+    
+    // Selecciona todos los botones de navegación QUE YA FUERON CARGADOS
+    const navButtons = document.querySelectorAll('#header-placeholder .nav-button');
+
+    let pageMatched = false;
+
+    navButtons.forEach(button => {
+        // button.pathname obtiene la ruta resuelta del enlace (ej: "/NAL/index.html")
+        // Esto compara la ruta del enlace con la ruta de la ventana
+        if (button.pathname === currentPathname) {
+            button.classList.add('active-link');
+            pageMatched = true; // Marcamos que encontramos la página de subsección
+        }
+    });
+
+    // CASO ESPECIAL: Si ninguna ruta coincidió Y estamos en la raíz (como "/" o "/index.html")
+    // Debemos resaltar el botón "Inicio".
+    if (!pageMatched && (currentPathname === '/' || currentPathname.endsWith('/index.html'))) {
+        navButtons.forEach(button => {
+            // Buscamos el botón "Inicio" específico por su href que vimos en tu imagen
+            if (button.getAttribute('href') === '../index.html') {
+                button.classList.add('active-link');
+            }
+        });
+    }
+}
+
 // -----------------------------------------------------------
 // Lógica principal de la aplicación
 // -----------------------------------------------------------
@@ -197,6 +228,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 loadGraph();
             }
         }
-        
+    highlightActiveNav();    
     });
 });

@@ -1,9 +1,9 @@
 :root {
     --color-primario: #0b1691;  /* Un azul corporativo/académico */
     --color-secundario: #b21818; /* Un azul más claro para enlaces o botones */
-    --color-fondo: #F4F6F8;     /* Un gris muy claro para el fondo de la página */
+    --color-fondo: #ffffff;     /* Un gris muy claro para el fondo de la página */
     --color-contenedor: #FFFFFF; /* Blanco para los contenedores */
-    --color-texto-principal: #333333;  /* Negro suave para la mayoría del texto */
+    --color-texto-principal: #000000;  /* Negro suave para la mayoría del texto */
     --color-texto-secundario: #555555; /* Gris para párrafos o subtítulos */
 }
 
@@ -27,7 +27,7 @@ body {
     max-width: 95%;
     margin: 20px auto;
     padding: 25px;
-    background: #fff;
+    background: var(--color-contenedor);
     border-radius: 10px;
     /*box-shadow: 0 2px 10px rgba(0,0,0,0.1);*/
     text-align: left;
@@ -37,7 +37,7 @@ body {
     max-width: 95%;
     margin: 20px auto;
     padding: 25px;
-    background: #fff;
+    background: var(--color-contenedor);
     border-radius: 10px;
     /*box-shadow: 0 2px 10px rgba(0,0,0,0.1);*/
     text-align: left;
@@ -128,7 +128,7 @@ footer {
     flex-direction: row; /* Coloca los elementos en una fila */
     align-items: center; /* Centra los elementos verticalmente en la fila */
     gap: 15px; /* Espacio entre el texto y el selector */
-    justify-content: center; /* Centra el conjunto de elementos horizontalmente */
+    justify-content: left; /* Centra el conjunto de elementos horizontalmente */
     margin-bottom: 20px; /* Añade un espacio debajo del selector */
 }
 
@@ -142,7 +142,7 @@ footer {
 
 .panel {
     flex: 1;
-    background: #fff;
+    background: var(--color-contenedor);
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
@@ -159,6 +159,14 @@ footer {
     overflow: hidden;
     align-items: center;
     justify-content: center;
+    transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+    opacity: 1;
+    transform: translateX(0);
+}
+
+#graphContainer.loading {
+    opacity: 0;
+    transform: translateX(-100px);
 }
 
 #graphContainer iframe {

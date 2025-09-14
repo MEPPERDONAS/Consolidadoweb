@@ -64,28 +64,39 @@ document.addEventListener('DOMContentLoaded', function() {
             const selectedOption = yearSelector.options[yearSelector.selectedIndex];
             const graphUrl = selectedOption ? selectedOption.dataset.graph : null;
 
-            // ----- INICIO DE LA MODIFICACIÓN (ANIMACIÓN DE TEXTO) -----
-
-            let newTextContent = '<p>Selecciona un año para ver los detalles.</p>'; // Texto por defecto
+            // --- INICIO MODIFICACIÓN TEXTO (de la vez anterior) ---
+            let newTextContent = '<p>Selecciona un año para ver los detalles.</p>'; 
             if (selectedYear && yearTexts[selectedYear]) {
                 newTextContent = `<p>${yearTexts[selectedYear]}</p>`;
             }
             textContainer.classList.add('loading');
+            
+            // --- INICIO MODIFICACIÓN GRAFO (NUEVO) ---
+            // 1. Añade .loading al contenedor del grafo INMEDIATAMENTE.
+            //    Esto hace que el grafo ANTIGUO se deslice hacia la izquierda y desaparezca.
+            graphContainer.classList.add('loading');
+            // --- FIN MODIFICACIÓN GRAFO ---
 
+
+            // La animación del texto se ejecuta en su propio temporizador
             setTimeout(() => {
-                // 4. Actualiza el contenido HTML (mientras el contenedor está invisible)
                 textContainer.innerHTML = newTextContent;
-
                 textContainer.classList.remove('loading');
-            }, 300); // Este tiempo DEBE coincidir con la duración de la transición en tu CSS
+            }, 300); 
 
+
+            // Limpia el panel de palabras asociadas
             associatedWordsDisplay.innerHTML = '<p>Haz clic en un nodo para ver sus palabras vecinas.</p>';
 
+
+            // Lógica de carga del Grafo (MODIFICADA)
             if (graphUrl) {
                 if (loadedIframes[selectedYear]) {
+                    // --- LÓGICA DE GRAFO CACHEADO ---
                     graphContainer.innerHTML = '';
                     graphContainer.appendChild(loadedIframes[selectedYear]);
                     console.log(`Mostrando grafo cacheado para el año: ${selectedYear}`);
+                    
                     setTimeout(() => {
                         const network = loadedIframes[selectedYear].contentWindow.network;
                         if (network) {
@@ -94,14 +105,30 @@ document.addEventListener('DOMContentLoaded', function() {
                             console.warn("DEBUG: No se pudo re-adjuntar listener para grafo cacheado.");
                         }
                     }, 100);
+
+                    // 2A. Como el grafo está cacheado (ya cargó), podemos animar la entrada casi de inmediato.
+                    //     Usamos un pequeño timeout solo para asegurar que el DOM se actualizó.
+                    setTimeout(() => {
+                        graphContainer.classList.remove('loading');
+                    }, 50); // Un retraso muy corto
+
                 } else {
+                    // --- LÓGICA DE GRAFO NUEVO ---
                     const iframe = document.createElement('iframe');
                     iframe.src = graphUrl;
                     iframe.style.width = '100%';
                     iframe.style.height = '700px';
                     iframe.style.border = 'none';
+                    
+                    // 2B. ESTA ES LA CLAVE: El evento 'onload' se dispara CUANDO el iframe nuevo está listo.
                     iframe.onload = function() {
                         console.log(`Grafo para el año ${selectedYear} cargado.`);
+                        
+                        // 3. AHORA quitamos la clase 'loading' para activar la animación 
+                        //    de "deslizar desde la izquierda" (translateX -100px a 0).
+                        graphContainer.classList.remove('loading');
+
+                        // (Tu lógica original para adjuntar el listener)
                         setTimeout(() => {
                             const network = iframe.contentWindow.network;
                             if (network) {
@@ -111,12 +138,20 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                         }, 100);
                     };
+                    
                     loadedIframes[selectedYear] = iframe;
                     graphContainer.innerHTML = '';
                     graphContainer.appendChild(iframe);
                 }
             } else {
+                // --- LÓGICA SI NO HAY GRAFO ---
                 graphContainer.innerHTML = '<p>Selecciona un año para ver el grafo.</p>';
+                
+                // 2C. Si no hay grafo, solo animamos el texto placeholder 
+                //     para que entre al mismo tiempo que el panel de texto principal.
+                setTimeout(() => {
+                    graphContainer.classList.remove('loading');
+                }, 300); // Sincronizado con la animación del texto.
             }
         }
 

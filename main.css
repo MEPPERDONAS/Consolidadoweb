@@ -7,14 +7,6 @@
     --color-texto-secundario: #555555; /* Gris para párrafos o subtítulos */
 }
 
-.abstract-container,
-.container,
-.factor-container {
-    animation-name: fade-in-up;
-    animation-fill-mode: forwards;
-    animation-range: entry 10% cover 40%;
-    animation-timeline: view();
-}
 
 *,
 *::before,
@@ -238,6 +230,15 @@ footer {
         transform: translateY(0);       /* Y en su posición original */
         scale: 1;                       /* Y a su tamaño original */
     }
+}
+/* ANIMACIONES*/ 
+.abstract-container,
+.container,
+.factor-container {
+    animation-name: fade-in-up;
+    animation-fill-mode: forwards;
+    animation-range: entry 10% cover 40%;
+    animation-timeline: view();
 }
 
 @media (max-width: 768px) {

@@ -1,10 +1,11 @@
 :root {
-    --color-primario: #0b1691;  /* Un azul corporativo/académico */
-    --color-secundario: #b21818; /* Un azul más claro para enlaces o botones */
-    --color-fondo: #ffffff;     /* Un gris muy claro para el fondo de la página */
-    --color-contenedor: #FFFFFF; /* Blanco para los contenedores */
-    --color-texto-principal: #000000;  /* Negro suave para la mayoría del texto */
-    --color-texto-secundario: #555555; /* Gris para párrafos o subtítulos */
+    --color-primario: #0b1691;
+    --color-secundario: #b21818;
+    --color-ensafis: #2f39b1;
+    --color-fondo: #ffffff; 
+    --color-contenedor: #FFFFFF;
+    --color-texto-principal: #000000;
+    --color-texto-secundario: #555555;
 }
 
 
@@ -13,7 +14,6 @@
 *::after {
     box-sizing: border-box;
 }
-
 
 body {
     font-family: Arial, sans-serif;
@@ -26,9 +26,10 @@ body {
 .container {
     max-width: 95%;
     margin: 20px auto;
-    padding: 25px;
+    padding-right: 25px;
+    padding-left: 25px;
     background: var(--color-contenedor);
-    border-radius: 10px;
+    /*border-radius: 10px;
     /*box-shadow: 0 2px 10px rgba(0,0,0,0.1);*/
     text-align: left;
     /*border: #141212 solid 2px;*/
@@ -56,6 +57,14 @@ h2 {
     color: var(--color-primario);
     margin-bottom: 15px;
     text-align: left;
+    animation-name: titulos;
+    animation-fill-mode: forwards;
+    animation-range: entry 10% cover 40%;
+    animation-timeline: view();
+}
+h3 {
+    color: var(--color-fondo);
+    font-size: 12px;
 }
 p {
     margin-bottom: 15px;
@@ -72,12 +81,18 @@ p {
 }
 
 header {
-    background-color:var(--color-primario);
+    background-color:var(--color-ensafis);
     padding: 0 0;
+    border-bottom-left-radius: 5px;
+    border-end-end-radius: 5px;
     text-align: center;
     position: sticky;
 }
-
+.headerinfo {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    background-color: #2f39b1;
+}
 header nav {
     display: flex;
     justify-content: center;
@@ -85,19 +100,10 @@ header nav {
     flex-wrap: wrap;
 }
 #header-placeholder {
-    /* La magia de "sticky": se comporta normal hasta que llega arriba, 
-       luego se pega. */
     position: sticky;       
-    position: -webkit-sticky; /* Para compatibilidad con Safari */
-    
-    /* Le dice dónde pegarse: a 0px del borde superior */
+    position: -webkit-sticky;
     top: 0;                  
-
-    /* Importante: Asegúrate de que tenga un color de fondo, 
-       de lo contrario, el texto de abajo se verá a través de él. */
     background-color: white; 
-
-    /* Asegura que el header esté por encima de todo lo demás (los grafos, el texto). */
     z-index: 1000;         
 }
 .nav-button {
@@ -109,33 +115,28 @@ header nav {
 }
 
 .nav-button:hover {
-    background-color: #2980b9;
     transform: translateY(-2px);
 }
 
 .nav-button.active-link {
-    background-color: #FFFFFF;      /* Fondo blanco */
+    background-color: var(--color-fondo);      /* Fondo blanco */
     color: var(--color-primario);
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
     font-weight: bold;
-    /* Anulamos la animación de 'hover' para que se quede fijo */
     transform: translateY(0); 
 }
 
-/* Opcional: Ajusta el :hover del botón activo para que no 
-  vuelva al estilo azul por defecto.
-*/
 .nav-button.active-link:hover {
-    background-color: #f0f0f0; /* Un gris muy claro al pasar el ratón */
     color: var(--color-primario);
 }
 
 footer {
-    background-color: #34495e;
+    background-color: var(--color-primario);
     color: white;
     padding: 10px 0;
     text-align: center;
+    justify-items: center;
     font-size: 0.9em;
     width: 100%;
 
@@ -202,13 +203,9 @@ footer {
     transition: opacity 0.3s ease-out, transform 0.3s ease-out;
 }
 
-/* Esta es la clase que aplicaremos con JS. 
-  Hace el contenedor invisible (opacity: 0) y lo mueve ligeramente hacia abajo (translateY) 
-  para crear un efecto de "salida".
-*/
 #text-container.loading {
     opacity: 0;
-    transform: translateY(15px); /* Opcional: añade un leve deslizamiento */
+    transform: translateY(15px);
 }
 
 #associatedWordsDisplay {
@@ -229,15 +226,15 @@ footer {
     border-radius: 3px;
 }
 
-/* Estilo específico para el contenedor del abstract */
 .abstract-container {
     max-width: 95%;
     margin: 20px auto;
     padding: 25px;
-    background: #fff;
-    border-radius: 10px;
+    background: var(--color-fondo);
+    border-bottom-left-radius: 10px;
+    border-end-end-radius: 10px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    text-align: left; /* Alinea el texto a la izquierda para mejor lectura */
+    text-align: left;
 }
 
 .abstract-container h1 {
@@ -246,14 +243,17 @@ footer {
     margin-top: 0;
     font-size: 3em;
     padding-bottom: 60px;
+    color: var(--color-primario);
 }
 .abstract-container h3 {
     color: var(--color-secundario);
     margin-bottom: 15px;
+    font-size: 20px;
 }
 .abstract-container p {
     font-size: 1em;
     line-height: 1,15;
+    color: var(--color-texto-principal);
 }
 
 /* Animación para que los paneles aparezcan con un efecto de desvanecimiento y desplazamiento */
@@ -269,6 +269,17 @@ footer {
         scale: 1;                       /* Y a su tamaño original */
     }
 }
+@keyframes titulos {
+    from {
+        opacity: 0;
+        transform: translateX(-200px);
+    }
+    to{
+        opacity: 1;
+        transform: translateX(0);        
+    }
+    
+}
 /* ANIMACIONES*/ 
 .abstract-container,
 .container,
@@ -278,6 +289,7 @@ footer {
     animation-range: entry 10% cover 40%;
     animation-timeline: view();
 }
+
 
 @media (max-width: 768px) {
     .abstract-container h1 {
@@ -312,7 +324,7 @@ footer {
         flex-wrap: wrap;
     }
     .nav-button {
-        padding: 8px 8px;
+        padding: 12px 8px;
         font-size: 12px;
     }
 }

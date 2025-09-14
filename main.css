@@ -173,6 +173,19 @@ footer {
     text-align: left;
 }
 
+#text-container {
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+
+/* Esta es la clase que aplicaremos con JS. 
+  Hace el contenedor invisible (opacity: 0) y lo mueve ligeramente hacia abajo (translateY) 
+  para crear un efecto de "salida".
+*/
+#text-container.loading {
+    opacity: 0;
+    transform: translateY(15px); /* Opcional: añade un leve deslizamiento */
+}
+
 #associatedWordsDisplay {
     padding: 15px;
     text-align: left;

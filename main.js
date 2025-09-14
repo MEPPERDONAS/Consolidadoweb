@@ -1,5 +1,3 @@
-// main.js
-
 // Función para cargar contenido de un archivo HTML en un elemento
 function loadHTML(elementId, filePath) {
     return new Promise((resolve, reject) => {
@@ -51,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
     Promise.all([
         loadHTML('header-placeholder', '../header.html'),
         loadHTML('footer-placeholder', '../footer.html'),
-        //loadHTML('acacontent', '../INT/INT-ACA.html'),
+
         fetchTextsPromise
     ]).then(() => {
         const yearSelector = document.getElementById('yearSelector');
@@ -66,14 +64,21 @@ document.addEventListener('DOMContentLoaded', function() {
             const selectedOption = yearSelector.options[yearSelector.selectedIndex];
             const graphUrl = selectedOption ? selectedOption.dataset.graph : null;
 
-            // Actualiza el contenido del contenedor de texto
-            if (selectedYear && yearTexts[selectedYear]) {
-                textContainer.innerHTML = `<p>${yearTexts[selectedYear]}</p>`;
-            } else {
-                textContainer.innerHTML = `<p>Selecciona un año para ver los detalles.</p>`;
-            }
+            // ----- INICIO DE LA MODIFICACIÓN (ANIMACIÓN DE TEXTO) -----
 
-            // Limpia el panel de palabras asociadas
+            let newTextContent = '<p>Selecciona un año para ver los detalles.</p>'; // Texto por defecto
+            if (selectedYear && yearTexts[selectedYear]) {
+                newTextContent = `<p>${yearTexts[selectedYear]}</p>`;
+            }
+            textContainer.classList.add('loading');
+
+            setTimeout(() => {
+                // 4. Actualiza el contenido HTML (mientras el contenedor está invisible)
+                textContainer.innerHTML = newTextContent;
+
+                textContainer.classList.remove('loading');
+            }, 300); // Este tiempo DEBE coincidir con la duración de la transición en tu CSS
+
             associatedWordsDisplay.innerHTML = '<p>Haz clic en un nodo para ver sus palabras vecinas.</p>';
 
             if (graphUrl) {

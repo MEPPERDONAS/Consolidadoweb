@@ -19,8 +19,11 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     line-height: 1.6;
-    background-color: var(--color-fondo);
+    background-color:var(--color-fondo);
     color: var(--color-texto-principal);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .container {
@@ -47,6 +50,26 @@ body {
 .containerci p{
     max-width: 95%;
 }
+.landing{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    justify-items: center;
+
+}
+
+.menu-link{
+    background-color: #2f39b1;
+    padding: 10px 5px;
+    border-radius: 10px;
+    font-size: 20px;
+    margin:5px;
+    color: var(--color-fondo);
+    text-align: none;
+    min-width: 80%;
+}
+
 h1 {
     padding-top: 15px;
     color: var(--color-primario);
@@ -132,27 +155,30 @@ header nav {
 }
 
 footer {
-    background-color: var(--color-primario);
+    background-color: var(--color-ensafis);
     color: white;
     padding: 10px 0;
     text-align: center;
     justify-items: center;
     font-size: 0.9em;
     width: 100%;
+}
 
+#footer-placeholder {
+   margin-top: auto;
 }
 .select {
     display: flex;
-    flex-direction: row; /* Coloca los elementos en una fila */
-    align-items: center; /* Centra los elementos verticalmente en la fila */
-    gap: 15px; /* Espacio entre el texto y el selector */
-    justify-content: left; /* Centra el conjunto de elementos horizontalmente */
-    margin-bottom: 20px; /* Añade un espacio debajo del selector */
+    flex-direction: row; 
+    align-items: center;
+    gap: 15px;
+    justify-content: left;
+    margin-bottom: 20px;
 }
 
 .panels-wrapper {
     display: flex;
-    gap: 20px; /* Espacio entre los paneles */
+    gap: 20px;
     margin-top: 20px;
     flex-wrap: wrap;
     flex-direction: row-reverse;
@@ -259,20 +285,20 @@ footer {
 /* Animación para que los paneles aparezcan con un efecto de desvanecimiento y desplazamiento */
 @keyframes fade-in-up {
     from {
-        opacity: 0,5;                     /* Empieza invisible */
-        transform: translateY(20px);    /* Y 30px más abajo */
-        scale: 0.95;                   /* Y un poco más pequeño */
+        opacity: 0,5;
+        transform: translateY(20px);
+        scale: 0.95;
     }
     to {
-        opacity: 1;                     /* Termina visible */
-        transform: translateY(0);       /* Y en su posición original */
-        scale: 1;                       /* Y a su tamaño original */
+        opacity: 1;
+        transform: translateY(0);
+        scale: 1;                      
     }
 }
 @keyframes titulos {
     from {
         opacity: 0;
-        transform: translateX(-200px);
+        transform: translateX(200px);
     }
     to{
         opacity: 1;

@@ -292,10 +292,14 @@ footer {
 }
 
 .abstract-text,
-.abstract-image {
+.abstract-image img {
     flex: 1;
     min-width: 300px;
     box-sizing: border-box;
+    animation-name: fade-in-up;
+    animation-fill-mode: forwards;
+    animation-range: entry 10% cover 40%;
+    animation-timeline: view();
 }
 
 .abstract-image img {
@@ -331,7 +335,7 @@ footer {
     
 }
 /* ANIMACIONES*/ 
-.abstract-container,
+.abstract-container,.abstract-image,
 .container,
 .factor-container {
     animation-name: fade-in-up;

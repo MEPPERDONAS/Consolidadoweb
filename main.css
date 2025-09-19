@@ -80,6 +80,8 @@ h2 {
     color: var(--color-primario);
     margin-bottom: 15px;
     text-align: left;
+    border-bottom-right-radius: 5px;
+    background: linear-gradient(to right, white,var(--color-ensafis));
     animation-name: titulos;
     animation-fill-mode: forwards;
     animation-range: entry 10% cover 40%;
@@ -172,8 +174,11 @@ footer {
     flex-direction: row; 
     align-items: center;
     gap: 15px;
-    justify-content: left;
+    justify-content: center;
+    background-color: var(--color-ensafis);
     margin-bottom: 20px;
+    color: var(--color-fondo);
+    font-style: italic; ;
 }
 
 .panels-wrapper {

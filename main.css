@@ -173,6 +173,7 @@ footer {
     flex-direction: row; 
     align-items: center;
     gap: 15px;
+    padding-right: 3%;
     justify-content: center;
     background-color: var(--color-ensafis);
     margin-bottom: 20px;
@@ -354,8 +355,12 @@ footer {
 @media (max-width: 768px) {
     .abstract-container h1 {
        font-size: 1.5em;
+       padding-right: 15px;
+       padding-left: 15px;
     }
     .container{
+        padding-right: 15px;
+        padding-left: 15px;
         max-width: 99%;
         line-height: 1.4;
     }

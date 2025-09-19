@@ -304,6 +304,7 @@ footer {
 
 .abstract-image img {
     width: 100%;
+    max-height: 460px;
     height: auto;
     display: block;
     border-radius: 8px;

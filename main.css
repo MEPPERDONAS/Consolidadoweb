@@ -387,8 +387,16 @@ footer p{
 
 @media (max-width: 768px) {
     .layout-principal {
-    display: flex;
     flex-direction: column;
+    max-width: 100%;
+    padding: 0 10px;
+    }
+    .columna-texto {
+        padding-right: 0; 
+        width: 98%;
+    }
+    .landing {
+        justify-content: center;
     }
     .abstract-container h1 {
        font-size: 1.5em;

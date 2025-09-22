@@ -5,3 +5,19 @@
     border-radius: 10px;
     overflow: hidden;
 }
+@media (max-width: 768px) {
+
+    #globe-container {
+        /* Resetea la base de flexbox */
+        flex-basis: auto;
+
+        /* ¡CLAVE! Ocupa todo el ancho disponible */
+        width: 100%; 
+
+        /* Altura más pequeña para no ocupar tanta pantalla */
+        height: 350px; 
+
+        /* Añade un margen arriba para separarlo del texto */
+        margin-top: 20px;
+    }
+}

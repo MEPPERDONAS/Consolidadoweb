@@ -1,19 +1,7 @@
-/* globe.css */
-
-/* El canvas de Three.js que contiene el globo */
-canvas {
-    display: block;
-    position: fixed;   /* <-- ¡ESTA ES LA LÍNEA MÁS IMPORTANTE! */
-    top: 0;
-    left: 0;
-    width: 100vw;      /* Ocupa el 100% del ancho de la ventana */
-    height: 100vh;     /* Ocupa el 100% del alto de la ventana */
-    z-index: -1;       /* ¡Y ESTA! Lo manda detrás de todo */
-    overflow: hidden;  /* Evita barras de scroll raras */
-}
-
-/* Nos aseguramos de que el body no tenga márgenes */
-body {
-    margin: 0;
-    padding: 0;
+#globe-container {
+    flex-basis: 500px;  /* Ancho fijo para la columna del globo */
+    height: 500px;      
+    margin: 0; /* Ya no necesita margen 'auto' */
+    border-radius: 10px;
+    overflow: hidden;
 }

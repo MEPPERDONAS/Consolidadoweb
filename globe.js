@@ -69,7 +69,7 @@ scene.add(clouds);
 // --- 6. POSICIONAR CÁMARA ---
 // (He quitado camera.position.x = -1; porque da problemas con OrbitControls)
 // Lo he alejado un poco más (2.5) para que se vea bien en el contenedor
-camera.position.z = 2; 
+camera.position.z = 1.7; 
 
 // --- 7. CONTROLES DE ÓRBITA (apuntando al renderer) ---
 const controls = new OrbitControls(camera, renderer.domElement);

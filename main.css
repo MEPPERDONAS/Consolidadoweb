@@ -38,16 +38,8 @@ body {
     /*border: #141212 solid 2px;*/
 }
 .containerini {
-    /* Fondo de vidrio semi-transparente */
-    /*background-color: rgba(255, 255, 255, 0.1); /* Blanco MUY transparente */
-    /*backdrop-filter: blur(8px); /* Efecto vidrio esmerilado */
-    /*-webkit-backdrop-filter: blur(8px);
-    
-    border: 1px solid rgba(255, 255, 255, 0.2); /* Borde sutil */
     border-radius: 10px;
-    
-    /* Centrado y espaciado */
-    max-width: 900px;
+    max-width: 95%;
     margin: 20px auto;
     padding: 20px;
 }
@@ -184,8 +176,11 @@ footer {
     justify-items: center;
     font-size: 0.9em;
     width: 100%;
+    margin-top: auto;
 }
-
+footer p{
+    text-align: center;
+}
 #footer-placeholder {
    margin-top: auto;
 }
@@ -384,6 +379,9 @@ footer {
         padding-left: 15px;
         max-width: 99%;
         line-height: 1.4;
+    }
+    .containerini {
+    max-width: 98%;
     }
     .containerci {
         padding: 1px;

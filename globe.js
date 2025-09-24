@@ -3,10 +3,8 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 // --- 1. CONFIGURACIÓN BÁSICA DE LA ESCENA ---
 
-// ¡CAMBIO 1! Buscar el contenedor del HTML
 const container = document.getElementById('globe-container');
 
-// Si el contenedor no existe, detenemos el script
 if (!container) {
     throw new Error('No se encontró el contenedor #globe-container');
 }
@@ -14,7 +12,6 @@ if (!container) {
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
     75, // Campo de visión (Field of View)
-    // ¡CAMBIO 2! Usar el tamaño del CONTENEDOR
     container.clientWidth / container.clientHeight, // Aspect ratio
     0.1, // Distancia mínima de renderizado
     1000 // Distancia máxima de renderizado
@@ -61,14 +58,12 @@ const cloudsGeometry = new THREE.SphereGeometry(1.005, 64, 64);
 const cloudsMaterial = new THREE.MeshLambertMaterial({
     map: cloudsTexture,
     transparent: true,
-    opacity: 0.05 
+    opacity: 0.2 
 });
 const clouds = new THREE.Mesh(cloudsGeometry, cloudsMaterial);
 scene.add(clouds);
 
 // --- 6. POSICIONAR CÁMARA ---
-// (He quitado camera.position.x = -1; porque da problemas con OrbitControls)
-// Lo he alejado un poco más (2.5) para que se vea bien en el contenedor
 camera.position.z = 1.7; 
 
 // --- 7. CONTROLES DE ÓRBITA (apuntando al renderer) ---
@@ -90,10 +85,7 @@ function animate() {
 
 animate();
 
-// --- 9. Manejar el redimensionamiento de la ventana ---
-// ¡CAMBIO 5! Actualizar todo en base al CONTENEDOR
 window.addEventListener('resize', () => {
-    // Solo actualiza si el contenedor existe
     if (container) {
         camera.aspect = container.clientWidth / container.clientHeight;
         camera.updateProjectionMatrix();

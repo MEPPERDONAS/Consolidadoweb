@@ -40,7 +40,6 @@ body {
 .containerini {
     border-radius: 10px;
     max-width: 95%;
-    margin: 20px auto;
     padding: 20px;
 }
 .containerini h1{
@@ -48,7 +47,7 @@ body {
     text-align: left;
 }
 .containerini p{
-    max-width: 95%;
+    max-width: 100%;
     color: var(--color-texto-principal);
     font-size: 1.1em;
     line-height: 1.6;
@@ -127,7 +126,9 @@ header {
     border-bottom-left-radius: 5px;
     border-end-end-radius: 5px;
     text-align: center;
-    position: sticky;
+    position: sticky;       
+    position: -webkit-sticky;
+    top: 0; 
 }
 .headerinfo {
     padding-top: 5px;
@@ -398,6 +399,10 @@ footer p{
     .landing {
         justify-content: center;
     }
+    .menu-link {
+        text-align: center;
+        min-width: 100%;
+    }
     .abstract-container h1 {
        font-size: 1.5em;
        padding-right: 15px;
@@ -441,6 +446,7 @@ footer p{
         display: flex;
         gap: 5px;
         flex-wrap: wrap;
+
     }
     .nav-button {
         padding: 12px 8px;

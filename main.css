@@ -97,7 +97,7 @@ h2 {
     margin-bottom: 15px;
     text-align: left;
     border-bottom-right-radius: 5px;
-    background: linear-gradient(to right, white,var(--color-ensafis));
+    background: linear-gradient(to right, var(--color-contenedor),var(--color-ensafis));
     animation-name: titulos;
     animation-fill-mode: forwards;
     animation-range: entry 10% cover 40%;
@@ -354,7 +354,7 @@ footer p{
 @keyframes titulos {
     from {
         opacity: 0;
-        transform: translateX(200px);
+        transform: translateX(-80px);
     }
     to{
         opacity: 1;

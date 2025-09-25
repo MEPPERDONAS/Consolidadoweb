@@ -8,7 +8,6 @@
     --color-texto-secundario: #555555;
 }
 
-
 *,
 *::before,
 *::after {
@@ -133,7 +132,7 @@ header {
 .headerinfo {
     padding-top: 5px;
     padding-bottom: 5px;
-    background-color: #2f39b1;
+    background-color: var(--color-primario);
 }
 header nav {
     display: flex;
@@ -145,11 +144,11 @@ header nav {
     position: sticky;       
     position: -webkit-sticky;
     top: 0;                  
-    background-color: white; 
+    background-color: var(--color-fondo); 
     z-index: 1000;         
 }
 .nav-button {
-    color: #fff;
+    color: var(--color-fondo);
     text-decoration: none;
     font-weight: bold;
     padding: 10px 20px;
@@ -175,7 +174,7 @@ header nav {
 
 footer {
     background-color: var(--color-ensafis);
-    color: white;
+    color: var(--color-fondo);
     padding: 10px 0;
     text-align: center;
     justify-items: center;

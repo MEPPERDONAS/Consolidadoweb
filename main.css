@@ -84,6 +84,10 @@ body {
     text-align: none;
     min-width: 80%;
     text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.menu-link:hover{
+    transform: translateX(10px)
 }
 
 h1 {
@@ -133,7 +137,7 @@ header {
 .headerinfo {
     padding-top: 5px;
     padding-bottom: 5px;
-    background-color: var(--color-primario);
+    background-color: var(--color-ensafis);
 }
 header nav {
     display: flex;

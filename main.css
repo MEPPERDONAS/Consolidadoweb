@@ -75,14 +75,15 @@ body {
 }
 
 .menu-link{
-    background-color: #2f39b1;
-    padding: 10px 5px;
+    background-color: var(--color-ensafis);
+    padding: 10px 10px;
     border-radius: 10px;
     font-size: 20px;
     margin:5px;
     color: var(--color-fondo);
     text-align: none;
     min-width: 80%;
+    text-decoration: none;
 }
 
 h1 {

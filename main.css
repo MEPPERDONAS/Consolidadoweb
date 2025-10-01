@@ -55,7 +55,7 @@ body {
 .containerci {
     max-width: 95%;
     margin: 20px auto;
-    padding: 25px;
+    /*padding: 25px;*/
     background: var(--color-contenedor);
     border-radius: 10px;
     /*box-shadow: 0 2px 10px rgba(0,0,0,0.1);*/
@@ -208,7 +208,7 @@ footer p{
 
 .panels-wrapper {
     display: flex;
-    gap: 20px;
+    gap: 10px;
     margin-top: 20px;
     flex-wrap: wrap;
     flex-direction: row-reverse;
@@ -217,8 +217,8 @@ footer p{
 .panel {
     flex: 1;
     background: var(--color-contenedor);
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 0px;
+    /*box-shadow: 0 2px 10px rgba(0,0,0,0.1);*/
     border: 1px solid #ddd;
     box-sizing: border-box;
 }

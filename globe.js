@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 // --- CONFIGURACIÓN BÁSICA DE LA ESCENA ---
-
+//probando commits//
 const container = document.getElementById('globe-container');
 
 if (!container) {

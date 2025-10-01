@@ -1,4 +1,3 @@
-// Función para cargar contenido de un archivo HTML en un elemento
 function loadHTML(elementId, filePath) {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
@@ -24,30 +23,20 @@ function loadHTML(elementId, filePath) {
     });
 }
 
-// Función para resaltar el enlace de navegación activo
 function highlightActiveNav() {
-    // Obtiene la ruta de la página actual (ej: "/NAL/index.html")
     const currentPathname = window.location.pathname;
-    
-    // Selecciona todos los botones de navegación QUE YA FUERON CARGADOS
     const navButtons = document.querySelectorAll('#header-placeholder .nav-button');
 
     let pageMatched = false;
 
     navButtons.forEach(button => {
-        // button.pathname obtiene la ruta resuelta del enlace (ej: "/NAL/index.html")
-        // Esto compara la ruta del enlace con la ruta de la ventana
         if (button.pathname === currentPathname) {
             button.classList.add('active-link');
-            pageMatched = true; // Marcamos que encontramos la página de subsección
+            pageMatched = true;
         }
     });
-
-    // CASO ESPECIAL: Si ninguna ruta coincidió Y estamos en la raíz (como "/" o "/index.html")
-    // Debemos resaltar el botón "Inicio".
     if (!pageMatched && (currentPathname === '/' || currentPathname.endsWith('/index.html'))) {
         navButtons.forEach(button => {
-            // Buscamos el botón "Inicio" específico por su href que vimos en tu imagen
             if (button.getAttribute('href') === '../index.html') {
                 button.classList.add('active-link');
             }
@@ -59,9 +48,7 @@ function highlightActiveNav() {
 // Lógica principal de la aplicación
 // -----------------------------------------------------------
 document.addEventListener('DOMContentLoaded', function() {
-    let yearTexts = {}; // Declaramos la variable para los textos de los años
-
-    // Promesa para cargar los textos de los años desde el JSON
+    let yearTexts = {};
     const fetchTextsPromise = fetch('texts.json')
         .then(response => {
             if (!response.ok) {
@@ -75,8 +62,6 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => {
             console.error('Error al cargar los textos del JSON:', error);
         });
-
-    // Cargar todos los elementos de la página de forma asíncrona y simultánea
     Promise.all([
         loadHTML('header-placeholder', '../header.html'),
         loadHTML('footer-placeholder', '../footer.html'),
@@ -89,41 +74,25 @@ document.addEventListener('DOMContentLoaded', function() {
         const textContainer = document.getElementById('text-container');
         const loadedIframes = {};
 
-        // Función para cargar el grafo de un año
         function loadGraph() {
             const selectedYear = yearSelector.value;
             const selectedOption = yearSelector.options[yearSelector.selectedIndex];
             const graphUrl = selectedOption ? selectedOption.dataset.graph : null;
-
-            // --- INICIO MODIFICACIÓN TEXTO (de la vez anterior) ---
             let newTextContent = '<p>Selecciona un año para ver los detalles.</p>'; 
             if (selectedYear && yearTexts[selectedYear]) {
                 newTextContent = `<p>${yearTexts[selectedYear]}</p>`;
             }
-            textContainer.classList.add('loading');
-            
-            // --- INICIO MODIFICACIÓN GRAFO (NUEVO) ---
-            // 1. Añade .loading al contenedor del grafo INMEDIATAMENTE.
-            //    Esto hace que el grafo ANTIGUO se deslice hacia la izquierda y desaparezca.
+            textContainer.classList.add('loading');       
             graphContainer.classList.add('loading');
-            // --- FIN MODIFICACIÓN GRAFO ---
-
-
-            // La animación del texto se ejecuta en su propio temporizador
             setTimeout(() => {
                 textContainer.innerHTML = newTextContent;
                 textContainer.classList.remove('loading');
             }, 300); 
 
-
-            // Limpia el panel de palabras asociadas
             associatedWordsDisplay.innerHTML = '<p>Haz clic en un nodo para ver sus palabras vecinas.</p>';
 
-
-            // Lógica de carga del Grafo (MODIFICADA)
             if (graphUrl) {
                 if (loadedIframes[selectedYear]) {
-                    // --- LÓGICA DE GRAFO CACHEADO ---
                     graphContainer.innerHTML = '';
                     graphContainer.appendChild(loadedIframes[selectedYear]);
                     console.log(`Mostrando grafo cacheado para el año: ${selectedYear}`);
@@ -137,29 +106,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }, 100);
 
-                    // 2A. Como el grafo está cacheado (ya cargó), podemos animar la entrada casi de inmediato.
-                    //     Usamos un pequeño timeout solo para asegurar que el DOM se actualizó.
                     setTimeout(() => {
                         graphContainer.classList.remove('loading');
-                    }, 50); // Un retraso muy corto
+                    }, 50);
 
                 } else {
-                    // --- LÓGICA DE GRAFO NUEVO ---
                     const iframe = document.createElement('iframe');
                     iframe.src = graphUrl;
                     iframe.style.width = '100%';
                     iframe.style.height = '700px';
                     iframe.style.border = 'none';
-                    
-                    // 2B. ESTA ES LA CLAVE: El evento 'onload' se dispara CUANDO el iframe nuevo está listo.
                     iframe.onload = function() {
                         console.log(`Grafo para el año ${selectedYear} cargado.`);
-                        
-                        // 3. AHORA quitamos la clase 'loading' para activar la animación 
-                        //    de "deslizar desde la izquierda" (translateX -100px a 0).
                         graphContainer.classList.remove('loading');
 
-                        // (Tu lógica original para adjuntar el listener)
                         setTimeout(() => {
                             const network = iframe.contentWindow.network;
                             if (network) {
@@ -175,18 +135,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     graphContainer.appendChild(iframe);
                 }
             } else {
-                // --- LÓGICA SI NO HAY GRAFO ---
                 graphContainer.innerHTML = '<p>Selecciona un año para ver el grafo.</p>';
-                
-                // 2C. Si no hay grafo, solo animamos el texto placeholder 
-                //     para que entre al mismo tiempo que el panel de texto principal.
                 setTimeout(() => {
                     graphContainer.classList.remove('loading');
-                }, 300); // Sincronizado con la animación del texto.
+                }, 300);
             }
         }
 
-        // Función para adjuntar el "listener" de clic en los nodos
         function attachNodeClickListener(networkInstance) {
             if (!networkInstance || typeof networkInstance.on !== 'function') {
                 console.error("DEBUG: La instancia de la red no es válida.");

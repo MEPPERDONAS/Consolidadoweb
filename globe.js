@@ -20,7 +20,7 @@ const camera = new THREE.PerspectiveCamera(
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(container.clientWidth, container.clientHeight);
 container.appendChild(renderer.domElement); 
-scene.background = new THREE.Color(0xffffff);
+scene.background = new THREE.Color(0xe0e2e4);
 
 // --- ILUMINACIÓN ---
 const ambientLight = new THREE.AmbientLight(0xaaaaaa); 

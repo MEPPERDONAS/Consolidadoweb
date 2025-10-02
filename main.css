@@ -1,11 +1,15 @@
 :root {
-    --color-primario: #0b1691;
-    --color-secundario: #b21818;
-    --color-ensafis: #2f39b1;
-    --color-fondo: #e0e2e4; 
+    --color-primario: #2c3e50;
+    --color-secundario: #e74c3c;
+    --color-ensafis: #3498db;
+    --color-fondo: #e0e2e4;
     --color-contenedor: #e0e2e4;
-    --color-texto-principal: #000000;
-    --color-texto-secundario: #555555;
+    --color-texto-principal: #2c3e50;
+    --color-texto-secundario: #6c757d;
+    /* Agregar variables para tipografía */
+    --font-heading: 'Roboto', sans-serif;
+    --font-body: 'Open Sans', sans-serif;
+    --font-size-base: 16px;
 }
 
 *,
@@ -15,9 +19,10 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: var(--font-body);
+    font-size: var(--font-size-base);
     margin: 0;
-    line-height: 1.6;
+    line-height: 1.7;
     background-color:var(--color-fondo);
     color: var(--color-texto-principal);
     min-height: 100vh;
@@ -125,7 +130,7 @@ p {
 }
 
 header {
-    background-color:var(--color-ensafis);
+    background: linear-gradient(180deg, var(--color-ensafis) 0%, var(--color-primario) 100%);
     padding: 0 0;
     border-bottom-left-radius: 5px;
     border-end-end-radius: 5px;
@@ -454,4 +459,20 @@ footer p{
         padding: 12px 8px;
         font-size: 10px;
     }
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* Animación para elementos al hacer scroll */
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
 }
